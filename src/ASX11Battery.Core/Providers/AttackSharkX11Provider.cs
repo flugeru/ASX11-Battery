@@ -27,10 +27,13 @@ public sealed class AttackSharkX11Provider : HidBatteryProviderBase
         "Byte 4 is battery percentage 0-100.";
 
     protected override bool Matches(DeviceNodeInfo info) =>
-        (info.VendorId == 0x1D57 &&
-         (info.ProductId == 0xFA60 || info.ProductId == 0xFA55) &&
-         info.InputReportByteLength >= 5)
-        || IsX11LikeFallback(info);
+        // Wired FA55 can expose no readable input report. Its presence still
+        // represents the physical USB charging connection, so match it before
+        // checking report length. Wireless FA60 must remain report-capable.
+        (info.VendorId == 0x1D57 && info.ProductId == 0xFA55) ||
+        (info.VendorId == 0x1D57 && info.ProductId == 0xFA60 &&
+         info.InputReportByteLength >= 5) ||
+        IsX11LikeFallback(info);
 
     private static bool IsX11LikeFallback(DeviceNodeInfo info)
     {
@@ -41,7 +44,9 @@ public sealed class AttackSharkX11Provider : HidBatteryProviderBase
         bool plausibleReport = info.InputReportByteLength >= 5 && info.InputReportByteLength <= 512;
         bool x11Path = info.DevicePath.Contains("vid_1d57", StringComparison.OrdinalIgnoreCase)
                     && info.DevicePath.Contains("pid_fa", StringComparison.OrdinalIgnoreCase);
-        return plausibleReport && (vendorCollection || x11Path);
+        bool wiredPid = info.ProductId == 0xFA55 ||
+                        info.DevicePath.Contains("pid_fa55", StringComparison.OrdinalIgnoreCase);
+        return wiredPid || (plausibleReport && (vendorCollection || x11Path));
     }
 
     protected override int Rank(DeviceNodeInfo info)
