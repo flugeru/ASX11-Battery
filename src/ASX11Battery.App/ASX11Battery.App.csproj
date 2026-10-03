@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <UseWpf>true</UseWpf>
+    <UseWindowsForms>false</UseWindowsForms>
+    <AssemblyName>ASX11Battery.App</AssemblyName>
+    <RootNamespace>ASX11Battery.App</RootNamespace>
+    <ApplicationIcon>Assets\ASX11Battery.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ASX11Battery.Core\ASX11Battery.Core.csproj" />
+    <ProjectReference Include="..\ASX11Battery.Tray\ASX11Battery.Tray.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\ASX11Battery.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

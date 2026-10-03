@@ -1,0 +1,39 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.401'
+
+    - name: Restore dependencies
+      run: dotnet restore ASX11Battery.sln
+
+    - name: Build
+      run: dotnet build ASX11Battery.sln -c Release --no-restore
+
+    - name: Run tests
+      run: dotnet test tests/ASX11Battery.Tests/ASX11Battery.Tests.csproj -c Release --no-build
+
+    - name: Publish self-contained
+      run: |
+        dotnet publish src/ASX11Battery.App/ASX11Battery.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:DebugType=none -o artifacts/publish
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ASX11Battery-win-x64
+        path: artifacts/publish/

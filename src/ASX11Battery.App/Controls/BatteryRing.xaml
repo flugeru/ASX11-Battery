@@ -1,0 +1,92 @@
+<UserControl x:Class="ASX11Battery.App.Controls.BatteryRing"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             MinHeight="140" MinWidth="140">
+
+    <Grid x:Name="Root">
+        <!-- Soft glow behind the ring -->
+        <Ellipse x:Name="GlowEllipse" Width="140" Height="140">
+            <Ellipse.Fill>
+                <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                    <GradientStop x:Name="GlowStop" Color="#3DDC97" Offset="0" />
+                    <GradientStop Color="#3DDC97" Offset="0.55" />
+                    <GradientStop Color="#3DDC97" Offset="1" />
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+            <Ellipse.OpacityMask>
+                <RadialGradientBrush>
+                    <GradientStop Color="White" Offset="0" />
+                    <GradientStop Color="White" Offset="0.62" />
+                    <GradientStop Color="Black" Offset="1" />
+                </RadialGradientBrush>
+            </Ellipse.OpacityMask>
+        </Ellipse>
+
+        <!-- Track (empty ring) -->
+        <Ellipse x:Name="TrackEllipse"
+                 Stroke="{DynamicResource TrackBrush}"
+                 StrokeThickness="10"
+                 Width="140" Height="140" />
+
+        <!-- Level arc (animated) -->
+        <Ellipse x:Name="LevelEllipse"
+                 Stroke="{DynamicResource LevelUnknownBrush}"
+                 StrokeThickness="10"
+                 StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                 StrokeDashOffset="0"
+                 Width="140" Height="140"
+                 RenderTransformOrigin="0.5,0.5">
+            <Ellipse.RenderTransform>
+                <RotateTransform x:Name="LevelRotate" Angle="-90" />
+            </Ellipse.RenderTransform>
+        </Ellipse>
+
+        <!-- Charging indicator -->
+        <TextBlock x:Name="ChargingIcon"
+                   Text="⚡"
+                   FontSize="18"
+                   Foreground="{DynamicResource LevelFullBrush}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Top"
+                   Margin="0,9,0,0"
+                   Opacity="0"
+                   RenderTransformOrigin="0.5,0.5">
+            <TextBlock.RenderTransform>
+                <ScaleTransform x:Name="ChargingScale" ScaleX="1" ScaleY="1" />
+            </TextBlock.RenderTransform>
+        </TextBlock>
+
+        <!-- Center text -->
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock x:Name="PercentText"
+                           Text="--"
+                           FontSize="48"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           HorizontalAlignment="Center"
+                           FontFamily="{StaticResource UiFont}" />
+                <TextBlock x:Name="PercentSign"
+                           Text="%"
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextMutedBrush}"
+                           VerticalAlignment="Top"
+                           Margin="2,5,0,0"
+                           Visibility="Collapsed" />
+            </StackPanel>
+            <TextBlock x:Name="CaptionText"
+                       Text="Bateria indisponível"
+                       FontSize="{StaticResource FontSizeCaption}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       HorizontalAlignment="Center"
+                       Margin="0,3,0,0"
+                       TextAlignment="Center"
+                       MaxWidth="140"
+                       TextWrapping="Wrap" />
+        </StackPanel>
+    </Grid>
+</UserControl>

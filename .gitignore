@@ -1,0 +1,49 @@
+# Build artefacts
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+publish/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/
+*.csproj.user
+
+# Test output
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coverlet.json
+coverage*.xml
+coverage*.json
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+!packages/build/
+.nuget/
+
+# Diagnostics the app writes next to itself
+*.log
+logs/
+
+# Screenshots produced by verification scripts
+docs/window-capture.png
+
+# OS noise
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# IDE/Editor temp files
+*.swp
+*.swo
+*~

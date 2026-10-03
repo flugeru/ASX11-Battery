@@ -1,0 +1,57 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ================================================================
+         Dark theme (default). Every key here has a counterpart in
+         Light.xaml, so a theme switch is a straight dictionary swap.
+         ================================================================ -->
+
+    <!-- Midnight navy surfaces, with teal reserved for battery state. -->
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#10141D" />
+    <SolidColorBrush x:Key="SidebarBrush" Color="#151A25" />
+    <SolidColorBrush x:Key="CardBrush" Color="#1B2230" />
+    <SolidColorBrush x:Key="CardHoverBrush" Color="#202939" />
+    <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#242E40" />
+    <SolidColorBrush x:Key="SurfacePressedBrush" Color="#2D394D" />
+    <SolidColorBrush x:Key="SurfaceSelectedBrush" Color="#26364A" />
+    <SolidColorBrush x:Key="InputBrush" Color="#121824" />
+
+    <SolidColorBrush x:Key="CardBorderBrush" Color="#2A3547" />
+    <SolidColorBrush x:Key="DividerBrush" Color="#263143" />
+    <SolidColorBrush x:Key="StrokeStrongBrush" Color="#3B4860" />
+
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F1F5FA" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#B0BDCE" />
+    <SolidColorBrush x:Key="TextMutedBrush" Color="#78879C" />
+
+    <SolidColorBrush x:Key="AccentBrush" Color="#39D6B3" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#5BE5C7" />
+    <SolidColorBrush x:Key="OnAccentBrush" Color="#06221E" />
+    <SolidColorBrush x:Key="AccentGlowBrush" Color="#173E3A" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#1C3540" />
+
+    <SolidColorBrush x:Key="BadgeBrush" Color="#1A202C" />
+    <SolidColorBrush x:Key="BadgeBorderBrush" Color="#252D3C" />
+    <SolidColorBrush x:Key="BadgePositiveBrush" Color="#12301F" />
+    <SolidColorBrush x:Key="BadgePositiveBorderBrush" Color="#1E5138" />
+    <SolidColorBrush x:Key="BadgePositiveTextBrush" Color="#6FE8B4" />
+
+    <SolidColorBrush x:Key="LevelCriticalBrush" Color="#FF6B7A" />
+    <SolidColorBrush x:Key="LevelLowBrush" Color="#FFBD66" />
+    <SolidColorBrush x:Key="LevelGoodBrush" Color="#39D6B3" />
+    <SolidColorBrush x:Key="LevelFullBrush" Color="#5AB9FF" />
+    <SolidColorBrush x:Key="LevelUnknownBrush" Color="#334054" />
+
+    <SolidColorBrush x:Key="TrackBrush" Color="#283346" />
+    <SolidColorBrush x:Key="RingGlowBrush" Color="#172B31" />
+    <SolidColorBrush x:Key="ScrollThumbBrush" Color="#45536A" />
+    <SolidColorBrush x:Key="ScrollThumbHoverBrush" Color="#5B6B85" />
+
+    <SolidColorBrush x:Key="TooltipBrush" Color="#1C2230" />
+    <SolidColorBrush x:Key="TooltipTextBrush" Color="#E8ECF3" />
+
+    <SolidColorBrush x:Key="OfflineBrush" Color="#6A7689" />
+    <SolidColorBrush x:Key="TitleBarCloseHoverBrush" Color="#D93B4B" />
+    <SolidColorBrush x:Key="TitleBarHoverBrush" Color="#FFFFFF" Opacity="0.07" />
+
+</ResourceDictionary>
