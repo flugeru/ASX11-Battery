@@ -99,30 +99,4 @@ public sealed class AttackSharkX11Provider : HidBatteryProviderBase
         return true;
     }
 
-    protected override bool TryDecode(byte[] frame, int shift, out DecodeResult result)
-    {
-        result = new DecodeResult { Ok = false };
-
-        if (frame.Length < 5 + shift) return false;
-        if (frame[0 + shift] != 0x03 || frame[1 + shift] != 0x55 || frame[2 + shift] != 0x40)
-            return false;
-
-        byte statusFlag = frame[3 + shift];
-        if (statusFlag != 0x01 && statusFlag != 0x03)
-            return false;
-
-        int percent = frame[4 + shift];
-        if (percent < 0 || percent > 100) return false;
-
-        bool isCharging = statusFlag == 0x03;
-
-        result = new DecodeResult
-        {
-            Ok = true,
-            Percent = percent,
-            Charging = isCharging,
-            Note = isCharging ? "X11 charging report" : "X11 battery report"
-        };
-        return true;
-    }
 }
