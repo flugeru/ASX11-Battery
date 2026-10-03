@@ -75,8 +75,12 @@ public partial class App : System.Windows.Application
         _window.ExitRequested += (_, _) => _lifecycle?.ExitAsync();
         MainWindow = _window;
 
-        // Set window icon using WPF-only drawing
-        _window.Icon = CreateWindowIcon();
+        // Use same supplied ICO as executable, window, and tray asset.
+        string iconPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "ASX11Battery.ico");
+        if (System.IO.File.Exists(iconPath))
+            _window.Icon = new BitmapImage(new Uri(iconPath, UriKind.Absolute));
+        else
+            _window.Icon = CreateWindowIcon();
 
         // Lifecycle owns the exit sequence
         _lifecycle = new ApplicationLifecycle(
