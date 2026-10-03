@@ -82,8 +82,9 @@ public partial class BatteryRing : System.Windows.Controls.UserControl
         GlowEllipse.Height = size;
 
         double radius = (size / 2) - 5;
-        LevelEllipse.StrokeDashArray = new DoubleCollection(new[] { 2 * Math.PI * radius });
-        TrackEllipse.StrokeDashArray = new DoubleCollection(new[] { 2 * Math.PI * radius });
+        double circumference = 2 * Math.PI * radius;
+        LevelEllipse.StrokeDashArray = new DoubleCollection(new[] { circumference });
+        TrackEllipse.StrokeDashArray = new DoubleCollection(new[] { circumference });
 
         Apply();
     }

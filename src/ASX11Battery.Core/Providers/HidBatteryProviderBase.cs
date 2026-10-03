@@ -32,6 +32,11 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
     // stale wireless reports from overriding the wired battery state.
     protected virtual bool ShouldDecode(DeviceNodeInfo info, bool wiredPresent) => true;
 
+    // Providers may identify a wired transition from a decoded report rather
+    // than from a product ID. This keeps interface/PID changes transparent to
+    // the watch loop.
+    protected virtual bool IsChargingReport(DecodeResult decode) => decode.Charging == true;
+
     public int ConsensusFrames { get; set; } = 1;
 
     public ProviderDiagnostics? Diagnostics { get; protected set; }
@@ -147,6 +152,7 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
             int? percent = last.State == DeviceState.Connected ? last.BatteryPercent : null;
             bool? charging = last.Charging;
             string? protocolNote = null;
+            bool reportChargingSeen = false;
             int? candidatePercent = null;
             bool? candidateCharging = null;
             int candidateFrames = 0;
@@ -203,6 +209,12 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
                                 decodedSomething = true;
                                 detectedModel = decode.Note ?? detectedModel;
                                 protocolNote = decode.Note;
+                                reportChargingSeen |= IsChargingReport(decode);
+                                if (reportChargingSeen)
+                                {
+                                    wiredPresent = true;
+                                    connection = ConnectionType.UsbWired;
+                                }
 
                                 // Require repeated equal reports only when configured. This
                                 // filters an isolated corrupt packet without delaying default UI.

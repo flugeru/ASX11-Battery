@@ -17,9 +17,6 @@ public sealed class TrayService : IDisposable
     /// <summary>Raised when the user picks "Abrir" or double-clicks the tray icon.</summary>
     public event EventHandler? OpenRequested;
 
-    /// <summary>Raised when the user picks "Configurações".</summary>
-    public event EventHandler? SettingsRequested;
-
     /// <summary>Raised when the user picks "Sair".</summary>
     public event EventHandler? ExitRequested;
 
@@ -36,7 +33,6 @@ public sealed class TrayService : IDisposable
 
         var menu = new ContextMenuStrip();
         menu.Items.Add("Abrir ASX11 Battery", null, (_, _) => OpenRequested?.Invoke(this, EventArgs.Empty));
-        menu.Items.Add("Configurações", null, (_, _) => SettingsRequested?.Invoke(this, EventArgs.Empty));
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Sair", null, (_, _) => ExitRequested?.Invoke(this, EventArgs.Empty));
         _icon.ContextMenuStrip = menu;

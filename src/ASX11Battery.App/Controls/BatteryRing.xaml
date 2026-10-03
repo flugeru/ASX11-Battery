@@ -7,19 +7,19 @@
              MinHeight="140" MinWidth="140">
 
     <Grid x:Name="Root">
-        <!-- Soft glow behind the ring -->
-        <Ellipse x:Name="GlowEllipse" Width="140" Height="140">
+        <!-- Restrained halo; kept nearly invisible to avoid a gaming-HUD effect. -->
+        <Ellipse x:Name="GlowEllipse" Width="140" Height="140" Opacity="0.12">
             <Ellipse.Fill>
                 <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-                    <GradientStop x:Name="GlowStop" Color="#3DDC97" Offset="0" />
-                    <GradientStop Color="#3DDC97" Offset="0.55" />
-                    <GradientStop Color="#3DDC97" Offset="1" />
+                    <GradientStop x:Name="GlowStop" Color="#8AC8FF" Offset="0" />
+                    <GradientStop Color="#8AC8FF" Offset="0.68" />
+                    <GradientStop Color="#8AC8FF" Offset="1" />
                 </RadialGradientBrush>
             </Ellipse.Fill>
             <Ellipse.OpacityMask>
                 <RadialGradientBrush>
                     <GradientStop Color="White" Offset="0" />
-                    <GradientStop Color="White" Offset="0.62" />
+                    <GradientStop Color="White" Offset="0.55" />
                     <GradientStop Color="Black" Offset="1" />
                 </RadialGradientBrush>
             </Ellipse.OpacityMask>
@@ -28,13 +28,13 @@
         <!-- Track (empty ring) -->
         <Ellipse x:Name="TrackEllipse"
                  Stroke="{DynamicResource TrackBrush}"
-                 StrokeThickness="10"
+                 StrokeThickness="7"
                  Width="140" Height="140" />
 
         <!-- Level arc (animated) -->
         <Ellipse x:Name="LevelEllipse"
                  Stroke="{DynamicResource LevelUnknownBrush}"
-                 StrokeThickness="10"
+                 StrokeThickness="7"
                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                  StrokeDashOffset="0"
                  Width="140" Height="140"
@@ -64,14 +64,14 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <TextBlock x:Name="PercentText"
                            Text="--"
-                           FontSize="48"
+                           FontSize="44"
                            FontWeight="SemiBold"
                            Foreground="{DynamicResource TextPrimaryBrush}"
                            HorizontalAlignment="Center"
                            FontFamily="{StaticResource UiFont}" />
                 <TextBlock x:Name="PercentSign"
                            Text="%"
-                           FontSize="18"
+                           FontSize="16"
                            FontWeight="SemiBold"
                            Foreground="{DynamicResource TextMutedBrush}"
                            VerticalAlignment="Top"

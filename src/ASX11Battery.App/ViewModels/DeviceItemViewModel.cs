@@ -61,10 +61,9 @@ public sealed class DeviceItemViewModel : ViewModelBase
         : "2.4 GHz";
 
     public string StateText =>
-        Charging == true ? "Carregando"
-        : State == DeviceState.Connected ? "Conectado"
-        : State == DeviceState.BatteryUnavailable ? "Leitura indisponível"
-        : "Desconectado";
+        State == DeviceState.Disconnected ? "Desconectado"
+        : Charging == true ? "Carregando"
+        : "Conectado";
 
     public string LastUpdateText =>
         LastUpdate.HasValue ? $"Última leitura · {LastUpdate.Value:HH:mm:ss}"

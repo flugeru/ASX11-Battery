@@ -6,15 +6,15 @@
          Light.xaml, so a theme switch is a straight dictionary swap.
          ================================================================ -->
 
-    <!-- Charcoal + deep navy surfaces. Cyan reserved for live battery state. -->
-    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#11151C" />
-    <SolidColorBrush x:Key="SidebarBrush" Color="#171D27" />
-    <SolidColorBrush x:Key="CardBrush" Color="#202833" />
-    <SolidColorBrush x:Key="CardHoverBrush" Color="#283341" />
-    <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#2B3746" />
-    <SolidColorBrush x:Key="SurfacePressedBrush" Color="#344354" />
-    <SolidColorBrush x:Key="SurfaceSelectedBrush" Color="#263746" />
-    <SolidColorBrush x:Key="InputBrush" Color="#151B24" />
+    <!-- Quiet Windows utility palette: one surface, restrained live accent. -->
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#17191D" />
+    <SolidColorBrush x:Key="SidebarBrush" Color="#1B1E23" />
+    <SolidColorBrush x:Key="CardBrush" Color="#202329" />
+    <SolidColorBrush x:Key="CardHoverBrush" Color="#282C33" />
+    <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#2A2E35" />
+    <SolidColorBrush x:Key="SurfacePressedBrush" Color="#343941" />
+    <SolidColorBrush x:Key="SurfaceSelectedBrush" Color="#292E35" />
+    <SolidColorBrush x:Key="InputBrush" Color="#1A1D22" />
 
     <SolidColorBrush x:Key="StatusWarningBrush" Color="#F2B866" />
     <SolidColorBrush x:Key="StatusWarningSoftBrush" Color="#493823" />
@@ -25,34 +25,34 @@
     <SolidColorBrush x:Key="StatusOfflineBrush" Color="#A2AAB6" />
     <SolidColorBrush x:Key="StatusOfflineSoftBrush" Color="#2A3039" />
 
-    <SolidColorBrush x:Key="CardBorderBrush" Color="#3A3D44" />
-    <SolidColorBrush x:Key="DividerBrush" Color="#34373D" />
-    <SolidColorBrush x:Key="StrokeStrongBrush" Color="#555961" />
+    <SolidColorBrush x:Key="CardBorderBrush" Color="#FFFFFF" Opacity="0.075" />
+    <SolidColorBrush x:Key="DividerBrush" Color="#FFFFFF" Opacity="0.07" />
+    <SolidColorBrush x:Key="StrokeStrongBrush" Color="#FFFFFF" Opacity="0.16" />
 
-    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F3F4F6" />
-    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#C1C4CA" />
-    <SolidColorBrush x:Key="TextMutedBrush" Color="#8E939C" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F4F4F5" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#C8CAD0" />
+    <SolidColorBrush x:Key="TextMutedBrush" Color="#969AA3" />
 
-    <SolidColorBrush x:Key="AccentBrush" Color="#53D6C0" />
-    <SolidColorBrush x:Key="AccentHoverBrush" Color="#79E5D3" />
-    <SolidColorBrush x:Key="OnAccentBrush" Color="#102322" />
-    <SolidColorBrush x:Key="AccentGlowBrush" Color="#29433F" />
-    <SolidColorBrush x:Key="AccentSoftBrush" Color="#293B3A" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#8AC8FF" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#A9D8FF" />
+    <SolidColorBrush x:Key="OnAccentBrush" Color="#15202A" />
+    <SolidColorBrush x:Key="AccentGlowBrush" Color="#27343F" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#29343F" />
 
-    <SolidColorBrush x:Key="BadgeBrush" Color="#303238" />
-    <SolidColorBrush x:Key="BadgeBorderBrush" Color="#464950" />
-    <SolidColorBrush x:Key="BadgePositiveBrush" Color="#24413A" />
-    <SolidColorBrush x:Key="BadgePositiveBorderBrush" Color="#3B6E60" />
-    <SolidColorBrush x:Key="BadgePositiveTextBrush" Color="#8BE8D1" />
+    <SolidColorBrush x:Key="BadgeBrush" Color="#282B31" />
+    <SolidColorBrush x:Key="BadgeBorderBrush" Color="#FFFFFF" Opacity="0.1" />
+    <SolidColorBrush x:Key="BadgePositiveBrush" Color="#24352F" />
+    <SolidColorBrush x:Key="BadgePositiveBorderBrush" Color="#52766A" />
+    <SolidColorBrush x:Key="BadgePositiveTextBrush" Color="#A6D9C9" />
 
-    <SolidColorBrush x:Key="LevelCriticalBrush" Color="#FF7582" />
-    <SolidColorBrush x:Key="LevelLowBrush" Color="#FFC56C" />
-    <SolidColorBrush x:Key="LevelGoodBrush" Color="#53D6C0" />
-    <SolidColorBrush x:Key="LevelFullBrush" Color="#70BDF5" />
-    <SolidColorBrush x:Key="LevelUnknownBrush" Color="#4A4E57" />
+    <SolidColorBrush x:Key="LevelCriticalBrush" Color="#F28B96" />
+    <SolidColorBrush x:Key="LevelLowBrush" Color="#E8B978" />
+    <SolidColorBrush x:Key="LevelGoodBrush" Color="#79C9B7" />
+    <SolidColorBrush x:Key="LevelFullBrush" Color="#8AC8FF" />
+    <SolidColorBrush x:Key="LevelUnknownBrush" Color="#5A5F69" />
 
-    <SolidColorBrush x:Key="TrackBrush" Color="#3A3D45" />
-    <SolidColorBrush x:Key="RingGlowBrush" Color="#2B3D3A" />
+    <SolidColorBrush x:Key="TrackBrush" Color="#34383F" />
+    <SolidColorBrush x:Key="RingGlowBrush" Color="#243037" />
     <SolidColorBrush x:Key="ScrollThumbBrush" Color="#626771" />
     <SolidColorBrush x:Key="ScrollThumbHoverBrush" Color="#7B808B" />
 
@@ -60,7 +60,7 @@
     <SolidColorBrush x:Key="TooltipTextBrush" Color="#F0F1F3" />
 
     <SolidColorBrush x:Key="OfflineBrush" Color="#858A93" />
-    <SolidColorBrush x:Key="TitleBarCloseHoverBrush" Color="#D94B58" />
-    <SolidColorBrush x:Key="TitleBarHoverBrush" Color="#FFFFFF" Opacity="0.08" />
+    <SolidColorBrush x:Key="TitleBarCloseHoverBrush" Color="#C42B1C" />
+    <SolidColorBrush x:Key="TitleBarHoverBrush" Color="#FFFFFF" Opacity="0.06" />
 
 </ResourceDictionary>

@@ -75,7 +75,6 @@ public partial class App : System.Windows.Application
 
         // Window
         _window = new MainWindow(_tray);
-        _window.ExitRequested += (_, _) => _lifecycle?.ExitAsync();
         MainWindow = _window;
 
         // Load supplied multi-resolution ICO as WPF ImageSource. Pack URI keeps
@@ -89,11 +88,7 @@ public partial class App : System.Windows.Application
             shutdown: Shutdown);
 
         _tray.OpenRequested += (_, _) => Dispatcher.BeginInvoke(() => _window?.ShowWindow());
-        _tray.SettingsRequested += (_, _) => Dispatcher.BeginInvoke(() =>
-        {
-            _window?.ShowWindow();
-            _window?.ShowSettings();
-        });
+        // Widget has no settings page. Keep tray menu limited to open and exit.
         _tray.ExitRequested += (_, _) => _lifecycle.ExitAsync();
 
         // Show the window initially

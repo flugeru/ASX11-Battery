@@ -25,8 +25,8 @@
     <Thickness x:Key="GapMedium">16</Thickness>
     <Thickness x:Key="GapLarge">24</Thickness>
 
-    <sys:Double x:Key="TitleBarHeight">38</sys:Double>
-    <sys:Double x:Key="CaptionButtonWidth">46</sys:Double>
+    <sys:Double x:Key="TitleBarHeight">42</sys:Double>
+    <sys:Double x:Key="CaptionButtonWidth">44</sys:Double>
 
     <Duration x:Key="AnimFast">0:0:0.14</Duration>
     <Duration x:Key="AnimMedium">0:0:0.26</Duration>
@@ -208,7 +208,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd" Background="{TemplateBinding Background}">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                            CornerRadius="0,14,0,0">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <ControlTemplate.Triggers>
