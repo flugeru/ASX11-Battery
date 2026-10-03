@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4A-00C04F79EFBC}") = "ASX11Battery.Tray", "src\AS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4A-00C04F79EFBC}") = "ASX11Battery.App", "src\ASX11Battery.App\ASX11Battery.App.csproj", "{2B2B2B2B-2B2B-2B2B-2B2B-2B2B2B2B2B2B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4A-00C04F79EFBC}") = "ASX11Battery.Tests", "tests\ASX11Battery.Tests\ASX11Battery.Tests.csproj", "{3C3C3C3C-3C3C-3C3C-3C3C-3C3C3C3C3C3C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -26,6 +28,10 @@ Global
 		{2B2B2B2B-2B2B-2B2B-2B2B-2B2B2B2B2B2B}.Debug|x64.Build.0 = Debug|x64
 		{2B2B2B2B-2B2B-2B2B-2B2B-2B2B2B2B2B2B}.Release|x64.ActiveCfg = Release|x64
 		{2B2B2B2B-2B2B-2B2B-2B2B-2B2B2B2B2B2B}.Release|x64.Build.0 = Release|x64
+		{3C3C3C3C-3C3C-3C3C-3C3C-3C3C3C3C3C3C}.Debug|x64.ActiveCfg = Debug|x64
+		{3C3C3C3C-3C3C-3C3C-3C3C-3C3C3C3C3C3C}.Debug|x64.Build.0 = Debug|x64
+		{3C3C3C3C-3C3C-3C3C-3C3C-3C3C3C3C3C3C}.Release|x64.ActiveCfg = Release|x64
+		{3C3C3C3C-3C3C-3C3C-3C3C-3C3C-3C3C3C3C3C3C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
