@@ -5,6 +5,15 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.IO;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
+using System.Windows.Interop;
+using DrawingBitmap = System.Drawing.Bitmap;
+using DrawingIcon = System.Drawing.Icon;
+using DrawingPixelFormat = System.Drawing.Imaging.PixelFormat;
+using DrawingImageFormat = System.Drawing.Imaging.ImageFormat;
 using ASX11Battery.Tray;
 using ASX11Battery.App.Views;
 using ASX11Battery.App.ViewModels;
@@ -75,12 +84,9 @@ public partial class App : System.Windows.Application
         _window.ExitRequested += (_, _) => _lifecycle?.ExitAsync();
         MainWindow = _window;
 
-        // Use same supplied ICO as executable, window, and tray asset.
-        string iconPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "ASX11Battery.ico");
-        if (System.IO.File.Exists(iconPath))
-            _window.Icon = new BitmapImage(new Uri(iconPath, UriKind.Absolute));
-        else
-            _window.Icon = CreateWindowIcon();
+        // Load supplied multi-resolution ICO as WPF ImageSource. Pack URI keeps
+        // title bar, Alt+Tab, and taskbar on same asset as executable and tray.
+        _window.Icon = LoadWindowIcon();
 
         // Lifecycle owns the exit sequence
         _lifecycle = new ApplicationLifecycle(
@@ -127,30 +133,34 @@ public partial class App : System.Windows.Application
         _window.StartMonitoring();
     }
 
-    private static ImageSource CreateWindowIcon()
+    private static ImageSource LoadWindowIcon()
     {
-        var drawingGroup = new DrawingGroup();
+        try
+        {
+            string path = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "ASX11Battery.ico");
+            if (!System.IO.File.Exists(path))
+                path = System.IO.Path.Combine(AppContext.BaseDirectory, "ASX11Battery.ico");
 
-        // Background circle
-        var bgBrush = new SolidColorBrush(Color.FromRgb(0x0A, 0x0C, 0x11));
-        var bgPen = new Pen(new SolidColorBrush(Color.FromRgb(0x3D, 0xDC, 0x97)), 3);
-        drawingGroup.Children.Add(new GeometryDrawing(bgBrush, bgPen, new EllipseGeometry(new Point(32, 32), 28, 28)));
-
-        // Mouse body
-        var bodyBrush = new SolidColorBrush(Color.FromRgb(0xED, 0xF1, 0xF7));
-        var bodyRect = new Rect(12, 12, 40, 40);
-        var bodyGeometry = new RectangleGeometry(bodyRect, 12, 12);
-        drawingGroup.Children.Add(new GeometryDrawing(bodyBrush, null, bodyGeometry));
-
-        // Scroll wheel
-        var wheelBrush = new SolidColorBrush(Color.FromRgb(0x3D, 0xDC, 0x97));
-        var wheelRect = new Rect(24, 18, 16, 12);
-        var wheelGeometry = new EllipseGeometry(new Point(32, 24), 8, 6);
-        drawingGroup.Children.Add(new GeometryDrawing(wheelBrush, null, wheelGeometry));
-
-        var drawingImage = new DrawingImage(drawingGroup);
-        drawingImage.Freeze();
-        return drawingImage;
+            if (System.IO.File.Exists(path))
+            {
+                using var icon = new DrawingIcon(path);
+                using var bmp = icon.ToBitmap();
+                using var ms = new MemoryStream();
+                bmp.Save(ms, DrawingImageFormat.Png);
+                ms.Position = 0;
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.StreamSource = ms;
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.EndInit();
+                image.Freeze();
+                return image;
+            }
+        }
+        catch
+        {
+        }
+        return CreateWindowIcon();
     }
 
     private async Task ReleaseResourcesAsync()
