@@ -10,7 +10,7 @@ namespace ASX11Battery.Tray;
 public sealed class TrayService : IDisposable
 {
     private readonly NotifyIcon _icon;
-    private Icon? _current;
+    private Icon? _appIcon;
     private string? _lastSignature;
     private bool _disposed;
 
@@ -41,21 +41,23 @@ public sealed class TrayService : IDisposable
         menu.Items.Add("Sair", null, (_, _) => ExitRequested?.Invoke(this, EventArgs.Empty));
         _icon.ContextMenuStrip = menu;
 
-        Swap(LoadAppIcon());
+        _appIcon = LoadAppIcon();
+        _icon.Icon = (Icon)_appIcon.Clone();
     }
 
     private static Icon LoadAppIcon()
     {
         try
         {
-            // TrayService is in a separate assembly, so resolve the copied icon
-            // relative to the executable rather than the current working folder.
-            string path = Path.Combine(AppContext.BaseDirectory, "ASX11Battery.ico");
-            return new Icon(path, 32, 32);
+            string path = Path.Combine(AppContext.BaseDirectory, "Assets", "ASX11Battery.ico");
+            if (!File.Exists(path))
+                path = Path.Combine(AppContext.BaseDirectory, "ASX11Battery.ico");
+
+            return new Icon(path);
         }
         catch
         {
-            return CreateTrayIcon(null, false);
+            return SystemIcons.Application;
         }
     }
 
@@ -92,7 +94,7 @@ public sealed class TrayService : IDisposable
         if (signature == _lastSignature) return;
 
         _lastSignature = signature;
-        Swap(CreateTrayIcon(lowest, charging));
+        _icon.Icon = (Icon)_appIcon!.Clone();
         _icon.Text = BuildTooltip(devices);
     }
 
@@ -114,14 +116,6 @@ public sealed class TrayService : IDisposable
     private static string Trim(string value, int max) =>
         value.Length <= max ? value : value[..(max - 1)] + "…";
 
-    private void Swap(Icon next)
-    {
-        var previous = _current;
-        _current = next;
-        _icon.Icon = next;
-        previous?.Dispose();
-    }
-
     private void OnMouseUp(object? sender, MouseEventArgs e)
     {
         if (e.Button == MouseButtons.Right)
@@ -139,73 +133,8 @@ public sealed class TrayService : IDisposable
         _icon.Visible = false;
         _icon.ContextMenuStrip?.Dispose();
         _icon.Dispose();
-        _current?.Dispose();
-        _current = null;
+        _appIcon?.Dispose();
+        _appIcon = null;
     }
 
-    /// <summary>Creates a tray icon with the given battery level and charging state.</summary>
-    private static Icon CreateTrayIcon(int? percent, bool charging)
-    {
-        using var bmp = new Bitmap(32, 32, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-        using var g = Graphics.FromImage(bmp);
-        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-        g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-        g.Clear(Color.Transparent);
-
-        var rect = new Rectangle(2, 2, 28, 28);
-        using var path = RoundedRect(rect, 6);
-        using var backgroundBrush = new SolidBrush(charging ? Color.FromArgb(255, 61, 220, 151) : Color.FromArgb(255, 26, 31, 39));
-        g.FillPath(backgroundBrush, path);
-
-        using var pen = new Pen(Color.FromArgb(255, 61, 220, 151), 2);
-        g.DrawPath(pen, path);
-
-        // Battery fill
-        if (percent is int p)
-        {
-            int fillWidth = (int)Math.Max(1, 24 * (p / 100.0));
-            var fillRect = new Rectangle(4, 4, fillWidth, 24);
-            using var fillPath = RoundedRect(fillRect, 4);
-            using var fillBrush = new SolidBrush(GetLevelColor(p));
-            g.FillPath(fillBrush, fillPath);
-        }
-        else
-        {
-            // Unknown - draw a question mark
-            using var font = new Font("Segoe UI", 14, FontStyle.Bold);
-            using var brush = new SolidBrush(Color.FromArgb(255, 107, 114, 128));
-            g.DrawString("?", font, brush, 8, 5);
-        }
-
-        // Charging bolt
-        if (charging)
-        {
-            using var boltPen = new Pen(Color.White, 2);
-            g.DrawLine(boltPen, 18, 8, 22, 16);
-            g.DrawLine(boltPen, 22, 16, 17, 16);
-            g.DrawLine(boltPen, 17, 16, 21, 24);
-        }
-
-        return Icon.FromHandle(bmp.GetHicon());
-    }
-
-    private static Color GetLevelColor(int percent) => percent switch
-    {
-        <= 10 => Color.FromArgb(255, 255, 92, 108),
-        <= 25 => Color.FromArgb(255, 255, 180, 84),
-        <= 75 => Color.FromArgb(255, 61, 220, 151),
-        _ => Color.FromArgb(255, 69, 217, 232),
-    };
-
-    private static System.Drawing.Drawing2D.GraphicsPath RoundedRect(Rectangle bounds, int radius)
-    {
-        var path = new System.Drawing.Drawing2D.GraphicsPath();
-        int d = radius * 2;
-        path.AddArc(bounds.X, bounds.Y, d, d, 180, 90);
-        path.AddArc(bounds.Right - d, bounds.Y, d, d, 270, 90);
-        path.AddArc(bounds.Right - d, bounds.Bottom - d, d, d, 0, 90);
-        path.AddArc(bounds.X, bounds.Bottom - d, d, d, 90, 90);
-        path.CloseFigure();
-        return path;
-    }
 }
