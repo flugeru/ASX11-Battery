@@ -28,6 +28,10 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
     protected abstract bool DetectsCharging(IReadOnlyList<DeviceNodeInfo> matched);
     protected abstract bool TryDecode(byte[] frame, int shift, out DecodeResult result);
 
+    // When wired and receiver interfaces coexist, derived providers can keep
+    // stale wireless reports from overriding the wired battery state.
+    protected virtual bool ShouldDecode(DeviceNodeInfo info, bool wiredPresent) => true;
+
     public int ConsensusFrames { get; set; } = 1;
 
     public ProviderDiagnostics? Diagnostics { get; protected set; }
@@ -184,6 +188,9 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
                         if (ct.IsCancellationRequested) break;
                         gotAnyFrame = true;
                         int shift = s.Info.InputReportByteLength > 0 && frame.Length < s.Info.InputReportByteLength ? 1 : 0;
+
+                        if (!ShouldDecode(s.Info, wiredPresent))
+                            continue;
 
                         if (TryDecode(frame, shift, out var decode))
                         {
