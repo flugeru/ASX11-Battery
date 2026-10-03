@@ -6,15 +6,24 @@
          Light.xaml, so a theme switch is a straight dictionary swap.
          ================================================================ -->
 
-    <!-- Neutral charcoal theme: dark gray surfaces, restrained cyan accent. -->
-    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#181A1E" />
-    <SolidColorBrush x:Key="SidebarBrush" Color="#202226" />
-    <SolidColorBrush x:Key="CardBrush" Color="#27292E" />
-    <SolidColorBrush x:Key="CardHoverBrush" Color="#303238" />
-    <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#35373D" />
-    <SolidColorBrush x:Key="SurfacePressedBrush" Color="#41434A" />
-    <SolidColorBrush x:Key="SurfaceSelectedBrush" Color="#383B42" />
-    <SolidColorBrush x:Key="InputBrush" Color="#1D1F23" />
+    <!-- Charcoal + deep navy surfaces. Cyan reserved for live battery state. -->
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#11151C" />
+    <SolidColorBrush x:Key="SidebarBrush" Color="#171D27" />
+    <SolidColorBrush x:Key="CardBrush" Color="#202833" />
+    <SolidColorBrush x:Key="CardHoverBrush" Color="#283341" />
+    <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#2B3746" />
+    <SolidColorBrush x:Key="SurfacePressedBrush" Color="#344354" />
+    <SolidColorBrush x:Key="SurfaceSelectedBrush" Color="#263746" />
+    <SolidColorBrush x:Key="InputBrush" Color="#151B24" />
+
+    <SolidColorBrush x:Key="StatusWarningBrush" Color="#F2B866" />
+    <SolidColorBrush x:Key="StatusWarningSoftBrush" Color="#493823" />
+    <SolidColorBrush x:Key="StatusErrorBrush" Color="#FF7D8A" />
+    <SolidColorBrush x:Key="StatusErrorSoftBrush" Color="#48252D" />
+    <SolidColorBrush x:Key="StatusInfoBrush" Color="#7DBCF2" />
+    <SolidColorBrush x:Key="StatusInfoSoftBrush" Color="#253B50" />
+    <SolidColorBrush x:Key="StatusOfflineBrush" Color="#A2AAB6" />
+    <SolidColorBrush x:Key="StatusOfflineSoftBrush" Color="#2A3039" />
 
     <SolidColorBrush x:Key="CardBorderBrush" Color="#3A3D44" />
     <SolidColorBrush x:Key="DividerBrush" Color="#34373D" />

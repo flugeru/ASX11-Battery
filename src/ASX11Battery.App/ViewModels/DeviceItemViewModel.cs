@@ -50,22 +50,25 @@ public sealed class DeviceItemViewModel : ViewModelBase
     }
 
     public string RingCaption =>
-        State == DeviceState.Disconnected ? "Desconectado"
-        : State == DeviceState.BatteryUnavailable ? "Bateria indisponível"
+        State == DeviceState.Disconnected ? "Sem conexão"
+        : State == DeviceState.BatteryUnavailable ? "Sem leitura"
         : Charging == true ? "Carregando"
         : "Conectado";
 
-    public string ConnectionText => "2.4 GHz";
+    public string ConnectionText =>
+        State == DeviceState.Disconnected ? "Sem conexão"
+        : Charging == true ? "USB · carregando"
+        : "2.4 GHz";
 
     public string StateText =>
         Charging == true ? "Carregando"
         : State == DeviceState.Connected ? "Conectado"
-        : State == DeviceState.BatteryUnavailable ? "Indisponível"
+        : State == DeviceState.BatteryUnavailable ? "Leitura indisponível"
         : "Desconectado";
 
     public string LastUpdateText =>
-        LastUpdate.HasValue ? $"Atualizado às {LastUpdate.Value:HH:mm:ss}"
-        : "Nunca";
+        LastUpdate.HasValue ? $"Última leitura · {LastUpdate.Value:HH:mm:ss}"
+        : "Aguardando primeira leitura";
 
     public void Apply(DeviceSnapshot snapshot) => Update(snapshot);
 

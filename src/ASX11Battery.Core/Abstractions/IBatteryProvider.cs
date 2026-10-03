@@ -54,4 +54,10 @@ public sealed class ProviderOptions
 
     /// <summary>Milliseconds between re-enumeration attempts when no device is found.</summary>
     public int ReenumerateIntervalMs { get; set; } = 3000;
+
+    /// <summary>
+    /// Number of matching reports required before a new battery value replaces the
+    /// displayed value. One preserves immediate device feedback.
+    /// </summary>
+    public int ConsensusFrames { get; set; } = 1;
 }

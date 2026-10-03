@@ -53,14 +53,15 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
 
         var last = DisconnectedSnapshot();
 
-        // Cache: re-enumerate every few seconds when nothing found
-        const int ReenumerateIntervalMs = 3000;
+        int reenumerateIntervalMs = Math.Clamp(options.ReenumerateIntervalMs, 500, 30_000);
+        int readTimeoutMs = Math.Clamp(options.ReadTimeoutMs, 100, 10_000);
+        int consensusFrames = Math.Clamp(options.ConsensusFrames, 1, 5);
         int consecutiveReadIterations = 0;
         const int KeepAliveMs = 10000;
 
         while (!ct.IsCancellationRequested)
         {
-            var all = HidInspector.Enumerate();
+            var all = HidInspector.Enumerate(forceRefresh: true);
             var matched = all.Where(Matches).OrderByDescending(Rank).ToList();
             diag.CapturedAt = DateTimeOffset.Now;
             diag.DevicePresent = matched.Count > 0;
@@ -89,7 +90,7 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
                     yield return last;
                 }
 
-                if (!await DelayAsync(ReenumerateIntervalMs, ct).ConfigureAwait(false))
+                if (!await DelayAsync(reenumerateIntervalMs, ct).ConfigureAwait(false))
                     yield break;
                 continue;
             }
@@ -131,7 +132,7 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
                     yield return last;
                 }
 
-                if (!await DelayAsync(ReenumerateIntervalMs, ct).ConfigureAwait(false))
+                if (!await DelayAsync(reenumerateIntervalMs, ct).ConfigureAwait(false))
                     yield break;
                 continue;
             }
@@ -146,6 +147,9 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
             int? percent = last.State == DeviceState.Connected ? last.BatteryPercent : null;
             bool? charging = last.Charging;
             string? protocolNote = null;
+            int? candidatePercent = null;
+            bool? candidateCharging = null;
+            int candidateFrames = 0;
 
             try
             {
@@ -167,7 +171,7 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
                     {
                         using var sweep = CancellationTokenSource.CreateLinkedTokenSource(ct);
                         var waits = sessions
-                            .Select(s => s.Session.WaitForFrameAsync(options.ReadTimeoutMs, sweep.Token).AsTask())
+                            .Select(s => s.Session.WaitForFrameAsync(readTimeoutMs, sweep.Token).AsTask())
                             .ToArray();
 
                         try { await Task.WhenAny(waits).ConfigureAwait(false); }
@@ -199,19 +203,35 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
                                 decodedSomething = true;
                                 detectedModel = decode.Note ?? detectedModel;
                                 protocolNote = decode.Note;
-                                if (percent != p)
+
+                                // Require repeated equal reports only when configured. This
+                                // filters an isolated corrupt packet without delaying default UI.
+                                if (candidatePercent == p && candidateCharging == decode.Charging)
+                                    candidateFrames++;
+                                else
                                 {
-                                    percent = p;
-                                    frames.Add(new FrameDiagnostic
-                                    {
-                                        Timestamp = DateTimeOffset.Now,
-                                        Data = frame,
-                                        Verdict = "decoded",
-                                        Percent = p,
-                                        Charging = decode.Charging,
-                                    });
+                                    candidatePercent = p;
+                                    candidateCharging = decode.Charging;
+                                    candidateFrames = 1;
                                 }
-                                if (decode.Charging.HasValue) charging = decode.Charging;
+
+                                if (candidateFrames >= consensusFrames)
+                                {
+                                    bool changed = percent != p || charging != decode.Charging;
+                                    percent = p;
+                                    charging = decode.Charging;
+                                    if (changed)
+                                    {
+                                        frames.Add(new FrameDiagnostic
+                                        {
+                                            Timestamp = DateTimeOffset.Now,
+                                            Data = frame,
+                                            Verdict = "decoded",
+                                            Percent = p,
+                                            Charging = decode.Charging,
+                                        });
+                                    }
+                                }
                             }
                             else if (frames.Count < 24)
                             {
@@ -272,7 +292,7 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
 
                     try
                     {
-                        await Task.Delay(Math.Max(120, options.ReadTimeoutMs / 2), ct).ConfigureAwait(false);
+                        await Task.Delay(Math.Max(120, readTimeoutMs / 2), ct).ConfigureAwait(false);
                     }
                     catch (OperationCanceledException) { break; }
                 }
