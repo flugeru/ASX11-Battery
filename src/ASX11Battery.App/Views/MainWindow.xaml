@@ -70,8 +70,8 @@
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="16,0,0,0"
                             VerticalAlignment="Center">
-                    <Border Width="17" Height="17" CornerRadius="5"
-                            Background="{DynamicResource AccentBrush}" Opacity="0.9" />
+                    <Image Width="17" Height="17" Source="/ASX11Battery.App;component/Assets/ASX11Battery.ico"
+                           Stretch="Uniform" />
                     <TextBlock Text="ASX11 Battery" Margin="9,0,0,0"
                                FontSize="11.5" FontWeight="SemiBold"
                                Foreground="{DynamicResource TextMutedBrush}"
@@ -109,9 +109,9 @@
                                     <Border Width="36" Height="36" CornerRadius="10"
                                             Background="{DynamicResource AccentBrush}"
                                             Effect="{StaticResource AccentShadow}">
-                                        <TextBlock Text="&#xE1A6;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
-                                                   FontSize="18" Foreground="{DynamicResource OnAccentBrush}"
-                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <Image Width="27" Height="27"
+                                               Source="/ASX11Battery.App;component/Assets/ASX11Battery.ico"
+                                               Stretch="Uniform" />
                                     </Border>
                                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                         <TextBlock Text="ASX11 Battery" FontSize="15" FontWeight="SemiBold"
@@ -392,9 +392,9 @@
                                             <Border Width="52" Height="52" CornerRadius="15"
                                                     Background="{DynamicResource AccentBrush}"
                                                     Effect="{StaticResource AccentShadow}">
-                                                <TextBlock Text="&#xE1A6;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
-                                                           FontSize="26" Foreground="{DynamicResource OnAccentBrush}"
-                                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                <Image Width="40" Height="40"
+                                                       Source="/ASX11Battery.App;component/Assets/ASX11Battery.ico"
+                                                       Stretch="Uniform" />
                                             </Border>
                                             <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
                                                 <TextBlock Text="ASX11 Battery" FontSize="19" FontWeight="SemiBold"
