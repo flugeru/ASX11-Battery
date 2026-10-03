@@ -154,7 +154,7 @@ public partial class App : System.Windows.Application
         catch
         {
         }
-        return CreateWindowIcon();
+        return BitmapFrame.Create(new Uri("pack://application:,,,/Assets/ASX11Battery.ico", UriKind.Absolute));
     }
 
     private async Task ReleaseResourcesAsync()
