@@ -34,4 +34,19 @@ public sealed class AttackSharkProviderTests
         var args = new object[] { frame, 0, null! };
         Assert.False((bool)method.Invoke(provider, args)!);
     }
+
+    [Fact]
+    public void SnapshotComparisonIncludesConnectionType()
+    {
+        var type = typeof(HidBatteryProviderBase);
+        var method = type.GetMethod("SameAs", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
+        var wireless = new ASX11Battery.Core.Abstractions.DeviceSnapshot(
+            "x11", "X11", "Attack Shark", "X11", "mouse",
+            ASX11Battery.Core.Abstractions.ConnectionType.Wireless24Ghz, false,
+            ASX11Battery.Core.Abstractions.DeviceState.Connected, 64, false,
+            null, null, null);
+        var wired = wireless with { Connection = ASX11Battery.Core.Abstractions.ConnectionType.UsbWired };
+
+        Assert.False((bool)method.Invoke(null, new object[] { wireless, wired })!);
+    }
 }

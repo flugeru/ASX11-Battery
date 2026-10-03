@@ -43,6 +43,7 @@ public sealed class BatteryMonitorService : IAsyncDisposable
 
     public void Start(ProviderOptions options)
     {
+        Logger.Info($"MONITOR start providers={_providers.Count} reenumMs={options.ReenumerateIntervalMs} timeoutMs={options.ReadTimeoutMs} consensus={options.ConsensusFrames}");
         if (Volatile.Read(ref _disposed) != 0) return;
 
         lock (_optionsGate)
@@ -78,16 +79,34 @@ public sealed class BatteryMonitorService : IAsyncDisposable
 
     private async Task RunProviderAsync(IBatteryProvider provider, ProviderOptions options, CancellationToken ct)
     {
-        await foreach (var snapshot in provider.WatchAsync(options, ct).ConfigureAwait(false))
+        Logger.Info($"MONITOR provider start id={provider.Id}");
+        try
         {
-            _snapshots[snapshot.Id] = snapshot;
-            DeviceChanged?.Invoke(this, snapshot);
-
-            if (provider.Diagnostics is not null)
+            await foreach (var snapshot in provider.WatchAsync(options, ct).ConfigureAwait(false))
             {
-                _diagnostics[provider.Id] = provider.Diagnostics;
-                DiagnosticsChanged?.Invoke(this, provider.Diagnostics);
+                _snapshots[snapshot.Id] = snapshot;
+                Logger.Info($"MONITOR snapshot id={snapshot.Id} state={snapshot.State} connection={snapshot.Connection} percent={snapshot.BatteryPercent?.ToString() ?? "null"} charging={snapshot.Charging?.ToString() ?? "null"}");
+                DeviceChanged?.Invoke(this, snapshot);
+
+                if (provider.Diagnostics is not null)
+                {
+                    _diagnostics[provider.Id] = provider.Diagnostics;
+                    DiagnosticsChanged?.Invoke(this, provider.Diagnostics);
+                }
             }
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            Logger.Info($"MONITOR provider canceled id={provider.Id}");
+        }
+        catch (Exception ex)
+        {
+            Logger.Error($"MONITOR provider failed id={provider.Id}", ex);
+            throw;
+        }
+        finally
+        {
+            Logger.Info($"MONITOR provider end id={provider.Id}");
         }
     }
 

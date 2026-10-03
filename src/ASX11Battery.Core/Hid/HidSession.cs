@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading.Channels;
 using Microsoft.Win32.SafeHandles;
+using ASX11Battery.Core.Diagnostics;
 
 namespace ASX11Battery.Core.Hid;
 
@@ -62,9 +63,13 @@ public sealed class HidSession : IDisposable
     /// <summary>Attempts to open a HID interface at the given device path.</summary>
     public static HidSession? TryOpen(string path)
     {
+        Logger.Info($"HID SESSION open start path=\"{path}\"");
         var caps = HidInspector.ProbeCapabilities(path);
         if (!caps.Success)
+        {
+            Logger.Error($"HID SESSION open rejected: capability probe failed path=\"{path}\"");
             return null;
+        }
 
         var session = new HidSession(path, caps);
 
@@ -76,11 +81,13 @@ public sealed class HidSession : IDisposable
 
         if (handle.IsInvalid)
         {
+            Logger.Error($"HID SESSION CreateFileW read open failed win32={Marshal.GetLastWin32Error()} path=\"{path}\"");
             handle.Dispose();
             return null;
         }
 
         session._handle = handle;
+        Logger.Info($"HID SESSION open complete in={session.InputReportByteLength} out={session.OutputReportByteLength} feature={session.FeatureReportByteLength} usagePage=0x{session.UsagePage:X4} usage=0x{session.Usage:X4} path=\"{path}\"");
         return session;
     }
 
@@ -96,6 +103,7 @@ public sealed class HidSession : IDisposable
             IsBackground = true,
         };
         _readPump.Start();
+        Logger.Info($"HID SESSION read pump started path=\"{_path}\"");
     }
 
     /// <summary>Non-blocking drain of the frame queue.</summary>
@@ -157,6 +165,7 @@ public sealed class HidSession : IDisposable
                         break;
 
                     _lastError = $"ReadFile failed (Win32 {err})";
+                    Logger.Error($"HID SESSION ReadFile failed win32={err} path=\"{_path}\"");
 
                     if (err is 5 or 6 or 32 or 1165)
                     {
@@ -173,16 +182,19 @@ public sealed class HidSession : IDisposable
                 var frame = new byte[read];
                 Buffer.BlockCopy(buffer, 0, frame, 0, (int)read);
                 _frames.Writer.TryWrite(frame);
-                Interlocked.Increment(ref _framesRead);
+                long frameNumber = Interlocked.Increment(ref _framesRead);
+                Logger.Info($"HID SESSION frame #{frameNumber} length={frame.Length} data={Convert.ToHexString(frame)} path=\"{_path}\"");
             }
         }
         catch (Exception ex)
         {
             _lastError = $"read pump crashed: {ex.GetType().Name}: {ex.Message}";
             IsFaulted = true;
+            Logger.Error($"HID SESSION read pump crashed path=\"{_path}\"", ex);
         }
         finally
         {
+            Logger.Info($"HID SESSION read pump ended faulted={IsFaulted} error=\"{_lastError}\" frames={FramesRead} path=\"{_path}\"");
             _frames.Writer.TryComplete();
             _readPumpThread = IntPtr.Zero;
             _closed.TrySetResult();
@@ -208,6 +220,7 @@ public sealed class HidSession : IDisposable
         _handle?.Dispose();
         _handle = null;
         _stopping.Dispose();
+        Logger.Info($"HID SESSION disposed frames={FramesRead} faulted={IsFaulted} error=\"{_lastError}\" path=\"{_path}\"");
     }
 
     /// <summary>Result of probing a device's capabilities before opening.</summary>

@@ -26,14 +26,15 @@ public sealed class AttackSharkX11Provider : HidBatteryProviderBase
         "03 55 40 01 XX on battery or 03 55 40 03 XX while charging. " +
         "Byte 4 is battery percentage 0-100.";
 
-    protected override bool Matches(DeviceNodeInfo info) =>
-        // Wired FA55 can expose no readable input report. Its presence still
-        // represents the physical USB charging connection, so match it before
-        // checking report length. Wireless FA60 must remain report-capable.
-        (info.VendorId == 0x1D57 && info.ProductId == 0xFA55) ||
-        (info.VendorId == 0x1D57 && info.ProductId == 0xFA60 &&
-         info.InputReportByteLength >= 5) ||
-        IsX11LikeFallback(info);
+    protected override bool Matches(DeviceNodeInfo info)
+    {
+        bool wired = info.VendorId == 0x1D57 && info.ProductId == 0xFA55;
+        bool wireless = info.VendorId == 0x1D57 && info.ProductId == 0xFA60 && info.InputReportByteLength >= 5;
+        bool fallback = IsX11LikeFallback(info);
+        bool matched = wired || wireless || fallback;
+        Logger.Info($"X11 MATCH matched={matched} wired={wired} wireless={wireless} fallback={fallback} vid=0x{info.VendorId:X4} pid=0x{info.ProductId:X4} in={info.InputReportByteLength} usagePage=0x{info.UsagePage:X4} usage=0x{info.Usage:X4} path=\"{info.DevicePath}\"");
+        return matched;
+    }
 
     private static bool IsX11LikeFallback(DeviceNodeInfo info)
     {
@@ -66,11 +67,12 @@ public sealed class AttackSharkX11Provider : HidBatteryProviderBase
 
     protected override int MaxOpenSessions => 3;
 
-    protected override bool DetectsCharging(IReadOnlyList<DeviceNodeInfo> matched) =>
-        // FA55 is X11 wired mode. FA60 is the wireless receiver and can stay
-        // enumerated while the cable is connected, so never use FA60 as proof
-        // of charging.
-        matched.Any(m => m.VendorId == 0x1D57 && m.ProductId == 0xFA55);
+    protected override bool DetectsCharging(IReadOnlyList<DeviceNodeInfo> matched)
+    {
+        bool charging = matched.Any(m => m.VendorId == 0x1D57 && m.ProductId == 0xFA55);
+        Logger.Info($"X11 CHARGING present={charging} matched={matched.Count} fa55={matched.Count(m => m.VendorId == 0x1D57 && m.ProductId == 0xFA55)}");
+        return charging;
+    }
 
     protected override bool ShouldDecode(DeviceNodeInfo info, bool wiredPresent) =>
         // When wired (FA55), ignore the wireless receiver (FA60) to prevent

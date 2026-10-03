@@ -28,6 +28,7 @@ public static class HidInspector
         {
             _cached = null;
             _cachedAt = DateTimeOffset.MinValue;
+            Logger.Info("HID ENUM cache invalidated");
         }
     }
 
@@ -37,17 +38,26 @@ public static class HidInspector
         lock (_enumLock)
         {
             if (!forceRefresh && _cached is not null && DateTimeOffset.Now - _cachedAt < TimeSpan.FromSeconds(2))
+            {
+                Logger.Info($"HID ENUM cache hit count={_cached.Count}");
                 return _cached;
+            }
 
+            Logger.Info($"HID ENUM start forceRefresh={forceRefresh}");
             var list = new List<DeviceNodeInfo>();
 
+            try
+            {
             var classGuid = HidNative.GUID_DEVINTERFACE_HID;
             var hDevInfo = HidNative.SetupDiGetClassDevsW(
                 ref classGuid, IntPtr.Zero, IntPtr.Zero,
                 HidNative.DIGCF_PRESENT | HidNative.DIGCF_DEVICEINTERFACE);
 
             if (hDevInfo == IntPtr.Zero || hDevInfo == new IntPtr(-1))
+            {
+                Logger.Error($"HID ENUM SetupDiGetClassDevs failed win32={Marshal.GetLastWin32Error()}");
                 return list;
+            }
 
             try
             {
@@ -128,6 +138,11 @@ public static class HidInspector
 
                     node.IsOpenable = IsOpenable(node);
                     list.Add(node);
+                    Logger.Info($"HID ENUM device vid=0x{node.VendorId:X4} pid=0x{node.ProductId:X4} " +
+                                $"usagePage=0x{node.UsagePage:X4} usage=0x{node.Usage:X4} " +
+                                $"in={node.InputReportByteLength} out={node.OutputReportByteLength} " +
+                                $"feature={node.FeatureReportByteLength} openable={node.IsOpenable} " +
+                                $"manufacturer=\"{node.Manufacturer}\" product=\"{node.Product}\" path=\"{node.DevicePath}\"");
                 }
             }
             finally
@@ -137,7 +152,14 @@ public static class HidInspector
 
             _cached = list;
             _cachedAt = DateTimeOffset.Now;
+            Logger.Info($"HID ENUM complete count={list.Count}");
             return list;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("HID ENUM failed", ex);
+                return list;
+            }
         }
     }
 
@@ -184,17 +206,30 @@ public static class HidInspector
     public static HidSession.HidOpenResult ProbeCapabilities(string path)
     {
         var result = new HidSession.HidOpenResult { Success = false };
+        Logger.Info($"HID PROBE start path=\"{path}\"");
 
         // Query-only access is sufficient for attributes/caps and works even when
         // the native mouse/keyboard collection is already claimed by Win32.
         using var handle = HidNative.CreateFileW(path, 0, HidNative.FILE_SHARE_READ | HidNative.FILE_SHARE_WRITE, IntPtr.Zero, HidNative.OPEN_EXISTING, HidNative.FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-        if (handle.IsInvalid) return result;
+        if (handle.IsInvalid)
+        {
+            Logger.Error($"HID PROBE CreateFileW failed win32={Marshal.GetLastWin32Error()} path=\"{path}\"");
+            return result;
+        }
 
-        if (!HidNative.HidD_GetPreparsedData(handle, out var prep)) return result;
+        if (!HidNative.HidD_GetPreparsedData(handle, out var prep))
+        {
+            Logger.Error($"HID PROBE HidD_GetPreparsedData failed win32={Marshal.GetLastWin32Error()} path=\"{path}\"");
+            return result;
+        }
 
         try
         {
-            if (HidNative.HidP_GetCaps(prep, out var caps) != HidPStatusSuccess) return result;
+            if (HidNative.HidP_GetCaps(prep, out var caps) != HidPStatusSuccess)
+            {
+                Logger.Error($"HID PROBE HidP_GetCaps failed path=\"{path}\"");
+                return result;
+            }
 
             result.Success = true;
             result.UsagePage = caps.UsagePage;
@@ -207,6 +242,7 @@ public static class HidInspector
         {
             HidNative.HidD_FreePreparsedData(prep);
         }
+        Logger.Info($"HID PROBE complete success={result.Success} usagePage=0x{result.UsagePage:X4} usage=0x{result.Usage:X4} in={result.InputReportByteLength} out={result.OutputReportByteLength} feature={result.FeatureReportByteLength} path=\"{path}\"");
         return result;
     }
 }

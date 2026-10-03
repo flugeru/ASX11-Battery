@@ -57,6 +57,7 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
         Diagnostics = diag;
 
         var last = DisconnectedSnapshot();
+        Logger.Info($"PROVIDER start id={Id} name=\"{DisplayName}\" options reenumMs={options.ReenumerateIntervalMs} timeoutMs={options.ReadTimeoutMs} consensus={options.ConsensusFrames}");
 
         int reenumerateIntervalMs = Math.Clamp(options.ReenumerateIntervalMs, 500, 30_000);
         int readTimeoutMs = Math.Clamp(options.ReadTimeoutMs, 100, 10_000);
@@ -68,6 +69,7 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
         {
             var all = HidInspector.Enumerate(forceRefresh: true);
             var matched = all.Where(Matches).OrderByDescending(Rank).ToList();
+            Logger.Info($"PROVIDER enum id={Id} all={all.Count} matched={matched.Count} paths={string.Join(" | ", matched.Select(m => $"0x{m.VendorId:X4}:0x{m.ProductId:X4} in={m.InputReportByteLength} usage=0x{m.Usage:X4} open={m.IsOpenable} {m.DevicePath}"))}");
             diag.CapturedAt = DateTimeOffset.Now;
             diag.DevicePresent = matched.Count > 0;
             var selectedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -75,6 +77,7 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
 
             if (matched.Count == 0)
             {
+                Logger.Info($"PROVIDER state Disconnected id={Id}");
                 diag.Status = "Nenhuma interface HID correspondente encontrada.";
                 diag.RecentFrames = new List<FrameDiagnostic>();
                 diag.Note($"Enumeração: nenhum dispositivo {Manufacturer} presente.");
@@ -102,6 +105,7 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
 
             var connection = ResolveConnection(matched);
             bool wiredPresent = DetectsCharging(matched);
+            Logger.Info($"PROVIDER matched id={Id} connection={connection} wiredPresent={wiredPresent} count={matched.Count}");
 
             var sessions = new List<OpenSession>();
             foreach (var info in matched.Take(MaxOpenSessions))
@@ -109,16 +113,23 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
                 if (!info.IsOpenable) continue;
 
                 var session = HidSession.TryOpen(info.DevicePath);
-                if (session is null) continue;
+                if (session is null)
+                {
+                    Logger.Error($"PROVIDER session open failed id={Id} vid=0x{info.VendorId:X4} pid=0x{info.ProductId:X4} path=\"{info.DevicePath}\"");
+                    continue;
+                }
 
                 selectedPaths.Add(info.DevicePath);
                 sessions.Add(new OpenSession(session, info));
+                Logger.Info($"PROVIDER session opened id={Id} vid=0x{info.VendorId:X4} pid=0x{info.ProductId:X4} in={info.InputReportByteLength} path=\"{info.DevicePath}\"");
             }
 
+            Logger.Info($"PROVIDER sessions id={Id} opened={sessions.Count}/{Math.Min(MaxOpenSessions, matched.Count)}");
             diag.Interfaces = matched.Select(m => ToDiagnostic(m, selectedPaths)).ToList();
 
             if (sessions.Count == 0)
             {
+                Logger.Info($"PROVIDER state BatteryUnavailable id={Id} connection={connection} wiredPresent={wiredPresent} reason=no-open-sessions");
                 diag.Status = "Dispositivo presente, mas nenhuma interface pôde ser aberta.";
                 diag.Note("Todas as interfaces falharam ao abrir (provável bloqueio de driver).");
 
@@ -150,7 +161,10 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
             // Wired mode can replace the receiver's HID node before its first
             // charging frame arrives. Keep the last confirmed level meanwhile.
             int? percent = last.State == DeviceState.Connected ? last.BatteryPercent : null;
-            bool? charging = last.Charging;
+            // Do not carry charging across a wireless/wired path change. The old
+            // value belongs to the previous physical connection until a new frame
+            // confirms it.
+            bool? charging = connection == last.Connection ? last.Charging : null;
             string? protocolNote = null;
             bool reportChargingSeen = false;
             int? candidatePercent = null;
@@ -161,6 +175,19 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
             {
                 while (!ct.IsCancellationRequested)
                 {
+                    // HID handles can remain readable after USB removal. Re-enumerate
+                    // while sessions are active so wired insertion/removal replaces
+                    // stale handles instead of waiting for a read timeout/fault.
+                    var currentPaths = HidInspector.Enumerate(forceRefresh: true)
+                        .Where(Matches)
+                        .Select(m => m.DevicePath)
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                    if (sessions.Any(s => !currentPaths.Contains(s.Info.DevicePath)))
+                    {
+                        Logger.Info($"PROVIDER reenum path changed id={Id} old={string.Join(" | ", sessions.Select(s => s.Info.DevicePath))} current={string.Join(" | ", currentPaths)}");
+                        break;
+                    }
+
                     bool gotAnyFrame = false;
                     bool decodedSomething = false;
 
@@ -198,12 +225,17 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
                         if (ct.IsCancellationRequested) break;
                         gotAnyFrame = true;
                         int shift = s.Info.InputReportByteLength > 0 && frame.Length < s.Info.InputReportByteLength ? 1 : 0;
+                        Logger.Info($"PROVIDER frame id={Id} length={frame.Length} shift={shift} vid=0x{s.Info.VendorId:X4} pid=0x{s.Info.ProductId:X4} path=\"{s.Info.DevicePath}\" data={Convert.ToHexString(frame)}");
 
                         if (!ShouldDecode(s.Info, wiredPresent))
+                        {
+                            Logger.Info($"PROVIDER frame ignored id={Id} reason=ShouldDecode-false wiredPresent={wiredPresent} pid=0x{s.Info.ProductId:X4}");
                             continue;
+                        }
 
                         if (TryDecode(frame, shift, out var decode))
                         {
+                            Logger.Info($"PROVIDER decode id={Id} ok={decode.Ok} percent={decode.Percent?.ToString() ?? "null"} charging={decode.Charging?.ToString() ?? "null"} note=\"{decode.Note}\"");
                             if (decode.Ok && decode.Percent is int p)
                             {
                                 decodedSomething = true;
@@ -286,6 +318,7 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
                             SnapshotName(detectedModel), connection,
                             percent is null ? DeviceState.BatteryUnavailable : DeviceState.Connected,
                             percent, charging, now, percent is null ? StatusForUnavailable(wiredPresent) : null, protocolNote);
+                        Logger.Info($"PROVIDER snapshot id={Id} state={snapshot.State} connection={snapshot.Connection} percent={snapshot.BatteryPercent?.ToString() ?? "null"} charging={snapshot.Charging?.ToString() ?? "null"} status=\"{snapshot.StatusMessage}\"");
                         last = snapshot;
                         yield return snapshot;
                     }
@@ -315,8 +348,10 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
                 foreach (var s in sessions)
                 {
                     s.Session.Dispose();
+                    Logger.Info($"PROVIDER session closed id={Id} frames={s.Session.FramesRead} faulted={s.Session.IsFaulted} error=\"{s.Session.LastError}\" path=\"{s.Info.DevicePath}\"");
                     diag.Note($"Sessão encerrada após {s.Session.FramesRead} quadros.");
                 }
+                Logger.Info($"PROVIDER read cycle ended id={Id} lastState={last.State} connection={last.Connection}");
             }
 
             if (ct.IsCancellationRequested) yield break;
@@ -354,7 +389,10 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
         charging == true, state, percent, charging, now, status, note);
 
     private static bool SameAs(DeviceSnapshot a, DeviceSnapshot b) =>
-        a.State == b.State && a.BatteryPercent == b.BatteryPercent && a.Charging == b.Charging;
+        a.Connection == b.Connection &&
+        a.State == b.State &&
+        a.BatteryPercent == b.BatteryPercent &&
+        a.Charging == b.Charging;
 
     private static InterfaceInfo ToDiagnostic(DeviceNodeInfo info, HashSet<string> selected) => new()
     {
