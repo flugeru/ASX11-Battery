@@ -230,11 +230,11 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
 
                                 // The known FA60 report carries battery level only. Do not
                                 // infer charging from any report byte.
-                                charging = detectCharging ? (wiredPresent ? true : decode.Charging) : null;
+                                charging = detectCharging ? (wiredPresent ? true : decode.Charging ?? false) : false;
 
                                 // Require repeated equal reports only when configured. This
                                 // filters an isolated corrupt packet without delaying default UI.
-                                bool reportedCharging = detectCharging ? (wiredPresent ? true : decode.Charging) : null;
+                                bool reportedCharging = detectCharging ? (wiredPresent ? true : decode.Charging ?? false) : false;
                                 if (candidatePercent == p && candidateCharging == reportedCharging)
                                     candidateFrames++;
                                 else
