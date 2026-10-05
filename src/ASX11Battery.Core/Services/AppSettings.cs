@@ -16,6 +16,8 @@ public sealed class AppSettings
     public int LowBatteryThreshold { get; set; } = 20;
     public bool NotifyLowBattery { get; set; } = true;
     public bool NotifyCharging { get; set; } = true;
+    public bool DetectCharging { get; set; } = true;
+    public bool BatteryNotificationsEnabled { get; set; } = true;
     public bool ShowDisconnected { get; set; } = true;
 
     public ProviderOptions ProviderOptions { get; set; } = new();

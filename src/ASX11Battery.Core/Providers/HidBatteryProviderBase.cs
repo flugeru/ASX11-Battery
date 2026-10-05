@@ -105,7 +105,7 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
 
             var connection = ResolveConnection(matched);
             bool wiredPresent = DetectsCharging(matched);
-            Logger.Info($"PROVIDER matched id={Id} connection={connection} wiredPresent={wiredPresent} count={matched.Count}");
+            Logger.Info($"PROVIDER matched id={Id} connection={connection} fa55Present={wiredPresent} count={matched.Count}");
 
             var sessions = new List<OpenSession>();
             foreach (var info in matched.Take(MaxOpenSessions))
@@ -137,7 +137,7 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
                 {
                     State = DeviceState.BatteryUnavailable,
                     BatteryPercent = null,
-                    Charging = wiredPresent ? true : null,
+                    Charging = null,
                     StatusMessage = "Detectado, mas as interfaces HID não puderam ser abertas",
                     ProtocolNote = null,
                     Connection = connection,
@@ -159,14 +159,10 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
             DateTimeOffset? lastYield = null;
             string? detectedModel = null;
             // Wired mode can replace the receiver's HID node before its first
-            // charging frame arrives. Keep the last confirmed level meanwhile.
+            // battery frame arrives. Keep the last confirmed level meanwhile.
             int? percent = last.State == DeviceState.Connected ? last.BatteryPercent : null;
-            // Do not carry charging across a wireless/wired path change. The old
-            // value belongs to the previous physical connection until a new frame
-            // confirms it.
-            bool? charging = connection == last.Connection ? last.Charging : null;
+            bool? charging = null;
             string? protocolNote = null;
-            bool reportChargingSeen = false;
             int? candidatePercent = null;
             bool? candidateCharging = null;
             int candidateFrames = 0;
@@ -241,12 +237,10 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
                                 decodedSomething = true;
                                 detectedModel = decode.Note ?? detectedModel;
                                 protocolNote = decode.Note;
-                                reportChargingSeen |= IsChargingReport(decode);
-                                if (reportChargingSeen)
-                                {
-                                    wiredPresent = true;
-                                    connection = ConnectionType.UsbWired;
-                                }
+
+                                // The known FA60 report carries battery level only. Do not
+                                // infer charging from any report byte.
+                                charging = null;
 
                                 // Require repeated equal reports only when configured. This
                                 // filters an isolated corrupt packet without delaying default UI.

@@ -69,15 +69,15 @@ public sealed class AttackSharkX11Provider : HidBatteryProviderBase
 
     protected override bool DetectsCharging(IReadOnlyList<DeviceNodeInfo> matched)
     {
+        // Only trust PID FA55 for charging detection when DetectCharging is enabled in settings.
+        // If settings were passed here, we could check them. For now, trust the provider
+        // implementation to return FA55 matches as a charging indicator, and the
+        // UI layer will decide if it shows charging status based on user config.
         bool charging = matched.Any(m => m.VendorId == 0x1D57 && m.ProductId == 0xFA55);
-        Logger.Info($"X11 CHARGING present={charging} matched={matched.Count} fa55={matched.Count(m => m.VendorId == 0x1D57 && m.ProductId == 0xFA55)}");
         return charging;
     }
 
-    protected override bool ShouldDecode(DeviceNodeInfo info, bool wiredPresent) =>
-        // When wired (FA55), ignore the wireless receiver (FA60) to prevent
-        // '01' (battery) frames from flickering the charging state.
-        !wiredPresent || info.ProductId != 0xFA60;
+    protected override bool ShouldDecode(DeviceNodeInfo info, bool wiredPresent) => true;
 
     protected override bool TryDecode(byte[] frame, int shift, out DecodeResult result)
     {
@@ -88,20 +88,18 @@ public sealed class AttackSharkX11Provider : HidBatteryProviderBase
             return false;
 
         byte statusFlag = frame[3 + shift];
-        if (statusFlag != 0x01 && statusFlag != 0x03)
+        if (statusFlag != 0x01)
             return false;
 
         int percent = frame[4 + shift];
         if (percent < 0 || percent > 100) return false;
 
-        bool isCharging = statusFlag == 0x03;
-
         result = new DecodeResult
         {
             Ok = true,
             Percent = percent,
-            Charging = isCharging,
-            Note = isCharging ? "X11 charging report" : "X11 battery report"
+            Charging = null,
+            Note = "X11 battery report"
         };
         return true;
     }

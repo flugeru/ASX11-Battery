@@ -38,7 +38,11 @@ public sealed class BatteryNotifier
 
     public void Evaluate(DeviceSnapshot snapshot)
     {
-        if (_settings.NotifyLowBattery && snapshot.BatteryPercent is int p && p <= _settings.LowBatteryThreshold)
+        if (!_settings.BatteryNotificationsEnabled || !_settings.NotifyLowBattery)
+        {
+            _lowNotified.Remove(snapshot.Id);
+        }
+        else if (snapshot.BatteryPercent is int p && p <= _settings.LowBatteryThreshold)
         {
             if (_lowNotified.Add(snapshot.Id))
             {
@@ -55,23 +59,45 @@ public sealed class BatteryNotifier
             _lowNotified.Remove(snapshot.Id);
         }
 
-        if (_settings.NotifyCharging && snapshot.Charging == true)
+        if (!_settings.BatteryNotificationsEnabled || !_settings.NotifyCharging || !_settings.DetectCharging)
         {
-            if (_chargingNotified.Add(snapshot.Id))
-            {
-                Raise(new NotificationRequest
-                {
-                    Title = "Carregando",
-                    Body = $"{snapshot.DisplayName} começou a carregar.",
-                    Kind = NotificationKind.Charging,
-                });
-            }
+            _chargingNotified.Remove(snapshot.Id);
         }
-        else
+        else if (snapshot.Charging == true && _chargingNotified.Add(snapshot.Id))
+        {
+            Raise(new NotificationRequest
+            {
+                Title = "Carregando",
+                Body = $"{snapshot.DisplayName} começou a carregar.",
+                Kind = NotificationKind.Charging,
+            });
+        }
+        else if (snapshot.Charging != true)
         {
             _chargingNotified.Remove(snapshot.Id);
         }
     }
+
+    public void ApplySettings(AppSettings settings)
+    {
+        if (!ReferenceEquals(_settings, settings))
+            throw new ArgumentException("Notifier must use the shared settings instance.", nameof(settings));
+    }
+
+    public void ResetDevice(string id)
+    {
+        _lowNotified.Remove(id);
+        _chargingNotified.Remove(id);
+    }
+
+    public void EvaluateBatteryCrossing(DeviceSnapshot previous, DeviceSnapshot current)
+    {
+        if (previous.BatteryPercent is int oldValue && current.BatteryPercent is int newValue &&
+            oldValue > _settings.LowBatteryThreshold && newValue <= _settings.LowBatteryThreshold)
+            Evaluate(current);
+    }
+
+    public bool ChargingDetectionEnabled => _settings.DetectCharging;
 
     private void Raise(NotificationRequest req) => NotificationRaised?.Invoke(this, req);
 

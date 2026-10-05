@@ -9,6 +9,7 @@ public sealed class DeviceItemViewModel : ViewModelBase
 {
     private int? _batteryPercent;
     private bool? _charging;
+    private ConnectionType _connection;
     private DeviceState _state;
     private string _statusMessage = string.Empty;
     private DateTimeOffset? _lastUpdate;
@@ -29,6 +30,12 @@ public sealed class DeviceItemViewModel : ViewModelBase
     {
         get => _charging;
         private set => SetProperty(ref _charging, value);
+    }
+
+    public ConnectionType Connection
+    {
+        get => _connection;
+        private set => SetProperty(ref _connection, value);
     }
 
     public DeviceState State
@@ -57,8 +64,14 @@ public sealed class DeviceItemViewModel : ViewModelBase
 
     public string ConnectionText =>
         State == DeviceState.Disconnected ? "Sem conexão"
-        : Charging == true ? "USB · carregando"
-        : "2.4 GHz";
+        : Connection switch
+        {
+            ConnectionType.UsbWired when Charging == true => "USB · carregando",
+            ConnectionType.UsbWired => "USB",
+            ConnectionType.Bluetooth => "Bluetooth",
+            ConnectionType.Wireless24Ghz => "2.4 GHz",
+            _ => "Conectado",
+        };
 
     public string StateText =>
         State == DeviceState.Disconnected ? "Desconectado"
@@ -76,6 +89,7 @@ public sealed class DeviceItemViewModel : ViewModelBase
         Id = snapshot.Id;
         Name = snapshot.DisplayName;
         BatteryPercent = snapshot.BatteryPercent;
+        Connection = snapshot.Connection;
         Charging = snapshot.Charging;
         State = snapshot.State;
         StatusMessage = snapshot.StatusMessage ?? string.Empty;

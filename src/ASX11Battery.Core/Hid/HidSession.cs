@@ -183,7 +183,6 @@ public sealed class HidSession : IDisposable
                 Buffer.BlockCopy(buffer, 0, frame, 0, (int)read);
                 _frames.Writer.TryWrite(frame);
                 long frameNumber = Interlocked.Increment(ref _framesRead);
-                Logger.Info($"HID SESSION frame #{frameNumber} length={frame.Length} data={Convert.ToHexString(frame)} path=\"{_path}\"");
             }
         }
         catch (Exception ex)

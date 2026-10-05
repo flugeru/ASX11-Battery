@@ -28,7 +28,7 @@ public static class HidInspector
         {
             _cached = null;
             _cachedAt = DateTimeOffset.MinValue;
-            Logger.Info("HID ENUM cache invalidated");
+            Logger.Event("hid.enum.cache", "HID enumeration cache invalidated");
         }
     }
 
@@ -39,11 +39,9 @@ public static class HidInspector
         {
             if (!forceRefresh && _cached is not null && DateTimeOffset.Now - _cachedAt < TimeSpan.FromSeconds(2))
             {
-                Logger.Info($"HID ENUM cache hit count={_cached.Count}");
                 return _cached;
             }
 
-            Logger.Info($"HID ENUM start forceRefresh={forceRefresh}");
             var list = new List<DeviceNodeInfo>();
 
             try
@@ -138,11 +136,6 @@ public static class HidInspector
 
                     node.IsOpenable = IsOpenable(node);
                     list.Add(node);
-                    Logger.Info($"HID ENUM device vid=0x{node.VendorId:X4} pid=0x{node.ProductId:X4} " +
-                                $"usagePage=0x{node.UsagePage:X4} usage=0x{node.Usage:X4} " +
-                                $"in={node.InputReportByteLength} out={node.OutputReportByteLength} " +
-                                $"feature={node.FeatureReportByteLength} openable={node.IsOpenable} " +
-                                $"manufacturer=\"{node.Manufacturer}\" product=\"{node.Product}\" path=\"{node.DevicePath}\"");
                 }
             }
             finally
@@ -152,7 +145,6 @@ public static class HidInspector
 
             _cached = list;
             _cachedAt = DateTimeOffset.Now;
-            Logger.Info($"HID ENUM complete count={list.Count}");
             return list;
             }
             catch (Exception ex)
