@@ -6,7 +6,7 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:controls="clr-namespace:ASX11Battery.App.Controls"
         mc:Ignorable="d"
-        Title="ASX11 Battery"
+        Title="ASX11 Bateria"
         Width="360" Height="500"
         MinWidth="360" MinHeight="500"
         MaxWidth="360" MaxHeight="500"
@@ -62,31 +62,31 @@
                 </Button>
             </Grid>
 
-            <StackPanel Grid.Row="1" Margin="24,10,24,8" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel Grid.Row="1" Margin="24,12,24,8" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Bateria" HorizontalAlignment="Center" FontFamily="{StaticResource UiFont}"
                            FontSize="12" Foreground="{DynamicResource TextMutedBrush}"
                            Margin="0,0,0,8" />
-                <controls:BatteryRing Width="212" Height="212" Margin="0,0,0,20"
+                <controls:BatteryRing Width="212" Height="212" Margin="0,0,0,24"
                                        BatteryPercent="{Binding PrimaryDevice.BatteryPercent}"
                                        Caption="{Binding PrimaryDevice.RingCaption}"
                                        Charging="{Binding PrimaryDevice.Charging}" />
                 <TextBlock Text="{Binding PrimaryDevice.Name}" HorizontalAlignment="Center"
                            Margin="0,0,0,6" FontFamily="{StaticResource UiFont}" FontSize="16"
                            FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
-                <StackPanel Margin="0,6,0,8" Orientation="Horizontal" HorizontalAlignment="Center">
+                <StackPanel Margin="0,6,0,10" Orientation="Horizontal" HorizontalAlignment="Center">
                     <Ellipse Width="7" Height="7" Margin="0,0,6,0" VerticalAlignment="Center"
                              Fill="{DynamicResource BadgePositiveTextBrush}" />
                     <TextBlock Text="{Binding PrimaryDevice.StateText}" FontFamily="{StaticResource UiFont}"
                                FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" />
                 </StackPanel>
                 <TextBlock Text="{Binding PrimaryDevice.StatusMessage}" HorizontalAlignment="Center"
-                           Margin="0,0,0,0" FontFamily="{StaticResource UiFont}" FontSize="11"
+                           Margin="0,0,0,4" FontFamily="{StaticResource UiFont}" FontSize="11"
                            Foreground="{DynamicResource TextMutedBrush}" TextAlignment="Center"
                            TextTrimming="CharacterEllipsis" MaxWidth="280" />
             </StackPanel>
 
             <Border Grid.Row="2" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0"
-                    Padding="16,10">
+                    Padding="16,12">
                 <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
