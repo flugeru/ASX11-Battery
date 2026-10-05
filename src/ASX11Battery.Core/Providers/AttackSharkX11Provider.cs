@@ -26,15 +26,13 @@ public sealed class AttackSharkX11Provider : HidBatteryProviderBase
         "03 55 40 01 XX on battery or 03 55 40 03 XX while charging. " +
         "Byte 4 is battery percentage 0-100.";
 
-    protected override bool Matches(DeviceNodeInfo info)
-    {
-        bool wired = info.VendorId == 0x1D57 && info.ProductId == 0xFA55;
-        bool wireless = info.VendorId == 0x1D57 && info.ProductId == 0xFA60 && info.InputReportByteLength >= 5;
-        bool fallback = IsX11LikeFallback(info);
-        bool matched = wired || wireless || fallback;
-        Logger.Info($"X11 MATCH matched={matched} wired={wired} wireless={wireless} fallback={fallback} vid=0x{info.VendorId:X4} pid=0x{info.ProductId:X4} in={info.InputReportByteLength} usagePage=0x{info.UsagePage:X4} usage=0x{info.Usage:X4} path=\"{info.DevicePath}\"");
-        return matched;
-    }
+    protected override bool Matches(DeviceNodeInfo info) =>
+        // FA55 proves a physical wired connection even if its collection exposes
+        // no readable input reports. FA60 must expose a usable report endpoint.
+        (info.VendorId == 0x1D57 && info.ProductId == 0xFA55) ||
+        (info.VendorId == 0x1D57 && info.ProductId == 0xFA60 &&
+         info.InputReportByteLength >= 5) ||
+        IsX11LikeFallback(info);
 
     private static bool IsX11LikeFallback(DeviceNodeInfo info)
     {
@@ -67,17 +65,16 @@ public sealed class AttackSharkX11Provider : HidBatteryProviderBase
 
     protected override int MaxOpenSessions => 3;
 
-    protected override bool DetectsCharging(IReadOnlyList<DeviceNodeInfo> matched)
-    {
-        // Only trust PID FA55 for charging detection when DetectCharging is enabled in settings.
-        // If settings were passed here, we could check them. For now, trust the provider
-        // implementation to return FA55 matches as a charging indicator, and the
-        // UI layer will decide if it shows charging status based on user config.
-        bool charging = matched.Any(m => m.VendorId == 0x1D57 && m.ProductId == 0xFA55);
-        return charging;
-    }
+    protected override bool DetectsCharging(IReadOnlyList<DeviceNodeInfo> matched) =>
+        // FA55 is X11 wired mode. FA60 is the wireless receiver and can stay
+        // enumerated while the cable is connected, so never use FA60 as proof
+        // of charging.
+        matched.Any(m => m.VendorId == 0x1D57 && m.ProductId == 0xFA55);
 
-    protected override bool ShouldDecode(DeviceNodeInfo info, bool wiredPresent) => true;
+    protected override bool ShouldDecode(DeviceNodeInfo info, bool wiredPresent) =>
+        // When wired (FA55), ignore the wireless receiver (FA60) to prevent
+        // '01' (battery) frames from flickering the charging state.
+        !wiredPresent || info.ProductId != 0xFA60;
 
     protected override bool TryDecode(byte[] frame, int shift, out DecodeResult result)
     {
@@ -88,19 +85,20 @@ public sealed class AttackSharkX11Provider : HidBatteryProviderBase
             return false;
 
         byte statusFlag = frame[3 + shift];
-        // 0x01 = battery report
-        if (statusFlag != 0x01)
+        if (statusFlag != 0x01 && statusFlag != 0x03)
             return false;
 
         int percent = frame[4 + shift];
         if (percent < 0 || percent > 100) return false;
 
+        bool isCharging = statusFlag == 0x03;
+
         result = new DecodeResult
         {
             Ok = true,
             Percent = percent,
-            Charging = null,
-            Note = "X11 battery report"
+            Charging = isCharging,
+            Note = isCharging ? "X11 charging report" : "X11 battery report"
         };
         return true;
     }
