@@ -22,34 +22,34 @@
             <Grid Grid.Row="0" Margin="18,0,0,0" MouseLeftButtonDown="OnTitleBarDrag"
                   shell:WindowChrome.IsHitTestVisibleInChrome="True">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="44" /></Grid.ColumnDefinitions>
-                <TextBlock Text="Settings" VerticalAlignment="Center" FontFamily="{StaticResource UiFont}"
+                <TextBlock Text="Configurações" VerticalAlignment="Center" FontFamily="{StaticResource UiFont}"
                            FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
                 <Button Grid.Column="1" Style="{StaticResource CaptionCloseButton}"
-                        shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="OnCloseClick" ToolTip="Close">
+                        shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="OnCloseClick" ToolTip="Fechar">
                     <TextBlock Text="&#xE8BB;" Style="{StaticResource IconGlyph}" FontSize="9"
                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                 </Button>
             </Grid>
             <StackPanel Grid.Row="1" Margin="24,17,24,12">
-                <TextBlock Text="Preferences" Style="{StaticResource CardTitle}" FontFamily="{StaticResource UiFont}" />
-                <TextBlock Text="Choose how ASX11 Battery monitors and alerts you." Style="{StaticResource Caption}" Margin="0,4,0,16" />
-                <CheckBox x:Name="DetectChargingCheckBox" Content="Detect charging" Style="{StaticResource AppCheckBox}"
+                <TextBlock Text="Preferências" Style="{StaticResource CardTitle}" FontFamily="{StaticResource UiFont}" />
+                <TextBlock Text="Escolha como o ASX11 Bateria monitora e envia alertas." Style="{StaticResource Caption}" Margin="0,4,0,16" />
+                <CheckBox x:Name="DetectChargingCheckBox" Content="Detectar carregamento" Style="{StaticResource AppCheckBox}"
                           Checked="OnSettingChanged" Unchecked="OnSettingChanged" />
-                <TextBlock Text="Charging status is unavailable when detection is off." Style="{StaticResource Caption}" Margin="31,4,0,14" />
+                <TextBlock Text="O status de carregamento fica indisponível quando a detecção está desativada." Style="{StaticResource Caption}" Margin="31,4,0,14" />
                 <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,14" />
-                <CheckBox x:Name="BatteryNotificationsCheckBox" Content="Battery notifications" Style="{StaticResource AppCheckBox}"
+                <CheckBox x:Name="BatteryNotificationsCheckBox" Content="Notificações de bateria" Style="{StaticResource AppCheckBox}"
                           Checked="OnSettingChanged" Unchecked="OnSettingChanged" />
                 <Grid Margin="31,11,0,0">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="76" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                    <TextBlock Text="Low battery threshold" VerticalAlignment="Center" Style="{StaticResource Muted}" FontSize="12" />
+                    <TextBlock Text="Limite de bateria baixa" VerticalAlignment="Center" Style="{StaticResource Muted}" FontSize="12" />
                     <TextBox x:Name="ThresholdTextBox" Grid.Column="1" Style="{StaticResource AppTextBox}" Padding="8,5"
                              MaxLength="3" TextChanged="OnThresholdChanged" />
                     <TextBlock Grid.Column="2" Text="%" Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource Muted}" />
                 </Grid>
-                <TextBlock Text="Alert once when battery drops to or below this level." Style="{StaticResource Caption}" Margin="31,5,0,0" />
+                <TextBlock Text="Alerta uma vez quando a bateria atingir ou ficar abaixo deste nível." Style="{StaticResource Caption}" Margin="31,5,0,0" />
             </StackPanel>
             <Border Grid.Row="2" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="20,0">
-                <Button Style="{StaticResource PrimaryButton}" Content="Done" HorizontalAlignment="Right"
+                <Button Style="{StaticResource PrimaryButton}" Content="Concluído" HorizontalAlignment="Right"
                         MinWidth="86" Padding="14,7" Click="OnCloseClick" />
             </Border>
         </Grid>
