@@ -28,9 +28,9 @@
             CornerRadius="14" Padding="0" SnapsToDevicePixels="True">
         <Grid ClipToBounds="True">
             <Grid.RowDefinitions>
-                <RowDefinition Height="42" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="48" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0" Margin="14,0,0,0"
@@ -44,13 +44,13 @@
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Image Width="22" Height="22" Stretch="Uniform"
                            Source="/ASX11Battery.App;component/Assets/ASX11Battery.ico" />
-                    <TextBlock Text="ASX11 Battery" Margin="9,0,0,1" FontFamily="{StaticResource UiFont}"
+                    <TextBlock Text="ASX11 Bateria" Margin="9,0,0,1" FontFamily="{StaticResource UiFont}"
                                FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"
                                VerticalAlignment="Center" />
                 </StackPanel>
                 <Button Grid.Column="1" Style="{StaticResource CaptionButton}"
                         shell:WindowChrome.IsHitTestVisibleInChrome="True"
-                        Click="OnSettingsClick" ToolTip="Settings">
+                        Click="OnSettingsClick" ToolTip="Configurações">
                     <TextBlock Text="&#xE713;" Style="{StaticResource IconGlyph}" FontSize="12"
                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                 </Button>
@@ -62,39 +62,41 @@
                 </Button>
             </Grid>
 
-            <StackPanel Grid.Row="1" Margin="24,8,24,4" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel Grid.Row="1" Margin="24,10,24,8" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Bateria" HorizontalAlignment="Center" FontFamily="{StaticResource UiFont}"
-                           FontSize="12" Foreground="{DynamicResource TextMutedBrush}" />
-                <controls:BatteryRing Width="212" Height="212" Margin="0,11,0,0"
+                           FontSize="12" Foreground="{DynamicResource TextMutedBrush}"
+                           Margin="0,0,0,8" />
+                <controls:BatteryRing Width="212" Height="212" Margin="0,0,0,20"
                                        BatteryPercent="{Binding PrimaryDevice.BatteryPercent}"
                                        Caption="{Binding PrimaryDevice.RingCaption}"
                                        Charging="{Binding PrimaryDevice.Charging}" />
                 <TextBlock Text="{Binding PrimaryDevice.Name}" HorizontalAlignment="Center"
-                           Margin="0,15,0,0" FontFamily="{StaticResource UiFont}" FontSize="16"
+                           Margin="0,0,0,6" FontFamily="{StaticResource UiFont}" FontSize="16"
                            FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
-                <StackPanel Margin="0,6,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
+                <StackPanel Margin="0,6,0,8" Orientation="Horizontal" HorizontalAlignment="Center">
                     <Ellipse Width="7" Height="7" Margin="0,0,6,0" VerticalAlignment="Center"
                              Fill="{DynamicResource BadgePositiveTextBrush}" />
                     <TextBlock Text="{Binding PrimaryDevice.StateText}" FontFamily="{StaticResource UiFont}"
                                FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" />
                 </StackPanel>
                 <TextBlock Text="{Binding PrimaryDevice.StatusMessage}" HorizontalAlignment="Center"
-                           Margin="0,5,0,0" FontFamily="{StaticResource UiFont}" FontSize="11"
+                           Margin="0,0,0,0" FontFamily="{StaticResource UiFont}" FontSize="11"
                            Foreground="{DynamicResource TextMutedBrush}" TextAlignment="Center"
                            TextTrimming="CharacterEllipsis" MaxWidth="280" />
             </StackPanel>
 
             <Border Grid.Row="2" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0"
-                    Padding="16,0">
+                    Padding="16,10">
                 <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding PrimaryDevice.LastUpdateText}" FontFamily="{StaticResource UiFont}"
+                    <TextBlock Grid.Column="0" Text="{Binding PrimaryDevice.LastUpdateText}" FontFamily="{StaticResource UiFont}"
                                FontSize="11" Foreground="{DynamicResource TextMutedBrush}"
-                               VerticalAlignment="Center" />
-                    <TextBlock Grid.Column="1" Text="Leitura local · HID" FontFamily="{StaticResource UiFont}"
+                               VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBlock Grid.Column="2" Text="Leitura local · HID" FontFamily="{StaticResource UiFont}"
                                FontSize="11" Foreground="{DynamicResource TextMutedBrush}"
                                VerticalAlignment="Center" />
                 </Grid>
