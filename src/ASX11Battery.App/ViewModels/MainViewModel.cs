@@ -60,6 +60,7 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
             ReadTimeoutMs = 250,
             ReenumerateIntervalMs = 750,
             ConsensusFrames = 1,
+            DetectCharging = _settings.DetectCharging,
         });
     }
 
@@ -81,10 +82,6 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
                 vm.Update(snapshot);
             }
 
-            // Widget must always render a stable device surface, including while
-            // receiver reconnects. Never remove its only visual data source.
-
-            // Update the tray icon via the shared Bridge
             Notifications.Refresh(Devices.Select(d => (d.Name, d.BatteryPercent, d.Charging)).ToList());
         });
     }
@@ -104,8 +101,14 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
         _settings.DetectCharging = newSettings.DetectCharging;
         _settings.BatteryNotificationsEnabled = newSettings.BatteryNotificationsEnabled;
         _settings.LowBatteryThreshold = newSettings.LowBatteryThreshold;
-        _settings.NotifyLowBattery = newSettings.NotifyLowBattery;
-        _settings.NotifyCharging = newSettings.NotifyCharging;
+
+        _monitor.Restart(new ProviderOptions
+        {
+            ReadTimeoutMs = 250,
+            ReenumerateIntervalMs = 750,
+            ConsensusFrames = 1,
+            DetectCharging = _settings.DetectCharging,
+        });
     }
 
     public void Dispose()
