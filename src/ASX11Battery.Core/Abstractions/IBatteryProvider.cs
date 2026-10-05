@@ -60,4 +60,6 @@ public sealed class ProviderOptions
     /// displayed value. One preserves immediate device feedback.
     /// </summary>
     public int ConsensusFrames { get; set; } = 1;
+
+    public bool DetectCharging { get; set; } = true;
 }

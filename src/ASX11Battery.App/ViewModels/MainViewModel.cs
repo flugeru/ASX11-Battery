@@ -97,6 +97,17 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
         });
     }
 
+    public AppSettings Settings => _settings;
+
+    public void ApplySettings(AppSettings newSettings)
+    {
+        _settings.DetectCharging = newSettings.DetectCharging;
+        _settings.BatteryNotificationsEnabled = newSettings.BatteryNotificationsEnabled;
+        _settings.LowBatteryThreshold = newSettings.LowBatteryThreshold;
+        _settings.NotifyLowBattery = newSettings.NotifyLowBattery;
+        _settings.NotifyCharging = newSettings.NotifyCharging;
+    }
+
     public void Dispose()
     {
         if (_disposed) return;

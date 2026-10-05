@@ -108,4 +108,16 @@ public partial class MainWindow : Window
 
     /// <summary>Closes the widget through the normal application exit path.</summary>
     private void OnCloseClick(object sender, RoutedEventArgs e) => Close();
+
+    private void OnSettingsClick(object sender, RoutedEventArgs e)
+    {
+        var settings = _viewModel.Settings;
+        var win = new SettingsWindow(settings) { Owner = this };
+        win.SettingsChanged += (s, ev) =>
+        {
+            SettingsStore.Save(settings);
+            _viewModel.ApplySettings(settings);
+        };
+        win.ShowDialog();
+    }
 }

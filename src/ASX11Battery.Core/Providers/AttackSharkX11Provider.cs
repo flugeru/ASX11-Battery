@@ -11,9 +11,9 @@ namespace ASX11Battery.Core.Providers;
 /// Battery provider for the Attack Shark X11 mouse.
 /// </summary>
 /// <remarks>
-/// The X11 sends a 5-byte report from the USB receiver's MI_02, Collection 03
-/// HID interface. Byte 3 is 01 on battery and 03 while charging; byte 4 is the
-/// percentage (0-100). The device is read-only; no output reports are sent.
+/// The X11 battery report is 03 55 40 01 XX, where XX is percentage. This
+/// report carries no proven charging flag. Wired mode is identified by PID FA55;
+/// wireless mode is PID FA60. The device is read-only.
 /// </remarks>
 public sealed class AttackSharkX11Provider : HidBatteryProviderBase
 {
@@ -88,6 +88,7 @@ public sealed class AttackSharkX11Provider : HidBatteryProviderBase
             return false;
 
         byte statusFlag = frame[3 + shift];
+        // 0x01 = battery report
         if (statusFlag != 0x01)
             return false;
 
