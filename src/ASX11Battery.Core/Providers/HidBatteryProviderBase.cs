@@ -234,7 +234,7 @@ public abstract class HidBatteryProviderBase : IBatteryProvider
 
                                 // Require repeated equal reports only when configured. This
                                 // filters an isolated corrupt packet without delaying default UI.
-                                bool reportedCharging = detectCharging ? (wiredPresent ? true : decode.Charging ?? false) : false;
+                                bool reportedCharging = detectCharging ? (wiredPresent ? true : (bool)(decode.Charging ?? false)) : false;
                                 if (candidatePercent == p && candidateCharging == reportedCharging)
                                     candidateFrames++;
                                 else
